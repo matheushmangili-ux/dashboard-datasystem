@@ -7,6 +7,7 @@ import { DashboardClock } from "@/components/dashboard-clock";
 import { EcommerceField } from "@/components/ecommerce-field";
 import { KpiCard } from "@/components/kpi-card";
 import { TrendChart } from "@/components/trend-chart";
+import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { YearOverYearSection } from "@/components/year-over-year";
 import { getPermissions, getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
@@ -467,7 +468,10 @@ export function RealtimeDashboard({
       {activeChannelId === "ecommerce" ? (
         <EcommerceField channel={activeChannel} />
       ) : (
-        <PhysicalQuickMenu channel={activeChannel} />
+        <>
+          <PhysicalQuickMenu channel={activeChannel} />
+          {permissions.canViewRanking ? <SalesTeamPanel /> : null}
+        </>
       )}
 
       <section className="section-grid channel-analytics-grid">
