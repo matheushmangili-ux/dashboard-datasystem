@@ -27,7 +27,7 @@ export const databaseConnector: ErpConnector = {
       enabled: isEnabled(),
       health: isEnabled() ? "fallback" : "missing-config",
       detail: isEnabled()
-        ? "A leitura do banco ja esta preparada e so precisa ser validada quando o acesso chegar."
+        ? "A leitura do banco já está preparada e só precisa ser validada quando o acesso chegar."
         : "Faltam credenciais do banco e a query principal do dashboard.",
       requirements: databaseRequirements
     };

@@ -75,6 +75,15 @@ export interface SalesChannelSnapshot {
   trendPoints: TrendPoint[];
 }
 
+export interface YearOverYearItem {
+  id: string;
+  label: string;
+  currentValue: string;
+  previousValue: string;
+  deltaPercent: number;
+  trend: "up" | "down" | "stable";
+}
+
 export interface DashboardSnapshot {
   generatedAt: string;
   source: DashboardSource;
@@ -87,4 +96,5 @@ export interface DashboardSnapshot {
   topProducts: ProductRankingEntry[];
   lowProducts: ProductRankingEntry[];
   alerts: AlertItem[];
+  yearOverYear: YearOverYearItem[];
 }

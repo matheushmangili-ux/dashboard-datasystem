@@ -9,15 +9,15 @@ function isCustomEnabled() {
 }
 
 async function loadCustomDashboard(): Promise<DashboardSnapshot> {
-  // Troque este retorno pela integracao real quando o acesso ao Data System chegar.
-  // Aqui eh o lugar certo para:
-  // 1. chamar endpoints proprietarios
+  // Troque este retorno pela integração real quando o acesso ao Data System chegar.
+  // Aqui é o lugar certo para:
+  // 1. chamar endpoints proprietários
   // 2. combinar respostas da API com queries do banco
-  // 3. aplicar regras de negocio antes de montar o DashboardSnapshot
+  // 3. aplicar regras de negócio antes de montar o DashboardSnapshot
   return buildMockSnapshot(
     "hybrid",
     "missing-config",
-    "Conector customizado reservado para a integracao real do Data System."
+    "Conector customizado reservado para a integração real do Data System."
   );
 }
 
@@ -34,8 +34,8 @@ export const customConnector: ErpConnector = {
       enabled: isCustomEnabled(),
       health: isCustomEnabled() ? "fallback" : "missing-config",
       detail: isCustomEnabled()
-        ? "O conector customizado foi habilitado e aguarda a implementacao final do Data System."
-        : "Espaco reservado para integrar regras proprias do Data System sem mexer no front.",
+        ? "O conector customizado foi habilitado e aguarda a implementação final do Data System."
+        : "Espaço reservado para integrar regras próprias do Data System sem mexer no front.",
       requirements: ["ERP_CUSTOM_CONNECTOR_ENABLED"]
     };
   }

@@ -20,7 +20,7 @@ export const apiConnector: ErpConnector = {
       enabled: isEnabled(),
       health: isEnabled() ? "fallback" : "missing-config",
       detail: isEnabled()
-        ? "A base da API ja esta configurada e so precisa ser validada quando o acesso chegar."
+        ? "A base da API já está configurada e só precisa ser validada quando o acesso chegar."
         : "Falta apontar a URL base e o token da API do ERP.",
       requirements: ["ERP_API_BASE_URL", "ERP_API_TOKEN"]
     };

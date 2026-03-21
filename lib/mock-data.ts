@@ -338,6 +338,56 @@ export function buildMockSnapshot(
         message: "Ticket médio segue acima da referência diária.",
         severity: "low"
       }
+    ],
+    yearOverYear: [
+      {
+        id: "yoy-revenue",
+        label: "Faturamento anual",
+        currentValue: formatCurrency(revenue * 365 * 0.92),
+        previousValue: formatCurrency(revenue * 365 * 0.78),
+        deltaPercent: 17.9,
+        trend: "up"
+      },
+      {
+        id: "yoy-orders",
+        label: "Pedidos no período",
+        currentValue: (orders * 312).toLocaleString("pt-BR"),
+        previousValue: (Math.round(orders * 312 * 0.88)).toLocaleString("pt-BR"),
+        deltaPercent: 13.6,
+        trend: "up"
+      },
+      {
+        id: "yoy-ticket",
+        label: "Ticket médio",
+        currentValue: formatCurrency(avgTicket * 1.04),
+        previousValue: formatCurrency(avgTicket * 0.91),
+        deltaPercent: 14.3,
+        trend: "up"
+      },
+      {
+        id: "yoy-conversion",
+        label: "Taxa de conversão",
+        currentValue: `${conversion.toFixed(1)}%`,
+        previousValue: `${(conversion * 0.93).toFixed(1)}%`,
+        deltaPercent: 7.5,
+        trend: "up"
+      },
+      {
+        id: "yoy-employees",
+        label: "Colaboradores ativos",
+        currentValue: "42",
+        previousValue: "38",
+        deltaPercent: 10.5,
+        trend: "up"
+      },
+      {
+        id: "yoy-achievement",
+        label: "Meta atingida",
+        currentValue: formatPercentage((revenue / revenueTarget) * 100),
+        previousValue: formatPercentage((revenue / revenueTarget) * 100 * 0.87),
+        deltaPercent: 14.9,
+        trend: "up"
+      }
     ]
   };
 }

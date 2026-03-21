@@ -35,14 +35,14 @@ function mergeSnapshots(
     generatedAt: new Date().toISOString(),
     source: {
       mode: "hybrid",
-      label: "Modo hibrido",
+      label: "Modo híbrido",
       health,
       detail:
         databaseConnected || apiConnected
           ? "Painel combinando banco e API do Data System."
           : health === "missing-config"
-            ? "API e banco ainda precisam de configuracao para sair do modo demonstracao."
-            : "Banco e API ainda nao responderam como esperado. O painel segue em fallback."
+            ? "API e banco ainda precisam de configuração para sair do modo demonstração."
+            : "Banco e API ainda não responderam como esperado. O painel segue em fallback."
     },
     summary: databaseConnected ? databaseSnapshot.summary : apiSnapshot.summary,
     metrics: databaseConnected ? databaseSnapshot.metrics : apiSnapshot.metrics,
@@ -73,7 +73,11 @@ function mergeSnapshots(
     alerts:
       apiConnected && apiSnapshot.alerts.length > 0
         ? apiSnapshot.alerts
-        : databaseSnapshot.alerts
+        : databaseSnapshot.alerts,
+    yearOverYear:
+      databaseConnected && databaseSnapshot.yearOverYear.length > 0
+        ? databaseSnapshot.yearOverYear
+        : apiSnapshot.yearOverYear
   };
 }
 
@@ -108,8 +112,8 @@ export const hybridConnector: ErpConnector = {
       ),
       detail:
         hasApi || hasDatabase
-          ? "A arquitetura hibrida ja aceita ativar API e banco aos poucos, sem alterar o dashboard."
-          : "A base hibrida ja existe, mas ainda faltam as credenciais da API e/ou do banco.",
+          ? "A arquitetura híbrida já aceita ativar API e banco aos poucos, sem alterar o dashboard."
+          : "A base híbrida já existe, mas ainda faltam as credenciais da API e/ou do banco.",
       requirements: [
         "ERP_API_BASE_URL",
         "ERP_API_TOKEN",

@@ -79,7 +79,7 @@ export function MotivationalToast() {
               <p className="toast-quote-text">&ldquo;{quote.text}&rdquo;</p>
               <p className="toast-quote-author">&mdash; {quote.author}</p>
             </div>
-            <p className="toast-signature">Matheus Mangili</p>
+            <p className="toast-signature">Texas Center Dashboard</p>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { DashboardClock } from "@/components/dashboard-clock";
 import { EcommerceField } from "@/components/ecommerce-field";
 import { KpiCard } from "@/components/kpi-card";
 import { TrendChart } from "@/components/trend-chart";
+import { YearOverYearSection } from "@/components/year-over-year";
 import { getPermissions, getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
 import type {
@@ -482,6 +483,10 @@ export function RealtimeDashboard({
         <InsightBarsCard channel={activeChannel} trendPoints={activeTrendPoints} />
       </section>
 
+      {permissions.canViewFinancials && snapshot.yearOverYear.length > 0 ? (
+        <YearOverYearSection items={snapshot.yearOverYear} />
+      ) : null}
+
       {permissions.canViewRanking ? (
         <section className="section-grid channel-rank-grid">
           <ChannelLeaderboardList
@@ -505,7 +510,7 @@ export function RealtimeDashboard({
         {permissions.canViewAlerts ? (
           <div className="alerts-card card">
             <p className="section-eyebrow">Alertas</p>
-            <h2 className="section-title">Pontos que pedem atencao</h2>
+            <h2 className="section-title">Pontos que pedem atenção</h2>
             <AlertList alerts={snapshot.alerts as AlertItem[]} />
           </div>
         ) : null}

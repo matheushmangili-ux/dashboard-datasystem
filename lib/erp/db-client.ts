@@ -149,7 +149,7 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
       {
         id: "ecommerce",
         label: "Ecommerce",
-        description: "Canal online reservado para a integracao com a Tray.",
+        description: "Canal online reservado para a integração com a Tray.",
         sourceLabel: "Tray",
         health: "fallback",
         revenueLabel: formatCurrency(0),
@@ -191,7 +191,8 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
     }),
     channelLeaderboards: fallback.channelLeaderboards,
     topProducts: fallback.topProducts,
-    lowProducts: fallback.lowProducts
+    lowProducts: fallback.lowProducts,
+    yearOverYear: fallback.yearOverYear
   };
 }
 

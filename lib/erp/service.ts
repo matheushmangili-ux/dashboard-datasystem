@@ -29,7 +29,10 @@ function ensureDashboardShape(snapshot: DashboardSnapshot): DashboardSnapshot {
       : fallback.topProducts,
     lowProducts: Array.isArray(snapshot.lowProducts)
       ? snapshot.lowProducts
-      : fallback.lowProducts
+      : fallback.lowProducts,
+    yearOverYear: Array.isArray(snapshot.yearOverYear)
+      ? snapshot.yearOverYear
+      : fallback.yearOverYear
   };
 }
 
@@ -60,7 +63,7 @@ export function getIntegrationReadiness(): IntegrationReadiness {
     activeMode: getConfiguredMode(),
     activeConnector: activeConnector.name,
     summary:
-      "Os conectores do ERP estao desacoplados do dashboard. Quando o acesso chegar, basta preencher as variaveis e trocar a logica do conector customizado se necessario.",
+      "Os conectores do ERP estão desacoplados do dashboard. Quando o acesso chegar, basta preencher as variáveis e trocar a lógica do conector customizado se necessário.",
     connectors
   };
 }

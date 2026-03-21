@@ -10,7 +10,7 @@ export const mockConnector: ErpConnector = {
     return buildMockSnapshot(
       "mock",
       "fallback",
-      "Painel rodando em modo demonstracao enquanto a integracao do ERP nao foi liberada."
+      "Painel rodando em modo demonstração enquanto a integração do ERP não foi liberada."
     );
   },
   getStatus() {
@@ -19,7 +19,7 @@ export const mockConnector: ErpConnector = {
       mode: "mock",
       enabled: true,
       health: "fallback",
-      detail: "Usa dados ficticios para manter o software utilizavel antes da integracao real.",
+      detail: "Usa dados fictícios para manter o software utilizável antes da integração real.",
       requirements: []
     };
   }

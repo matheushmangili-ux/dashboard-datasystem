@@ -7,7 +7,7 @@ export const demoTeams = [
     lead: "Paulo Martins",
     activePeople: 12,
     completion: 86,
-    focus: "Meta diaria e ritmo por hora"
+    focus: "Meta diária e ritmo por hora"
   },
   {
     id: "team-2",
@@ -15,7 +15,7 @@ export const demoTeams = [
     lead: "Bruna Lima",
     activePeople: 18,
     completion: 93,
-    focus: "Tempo medio e fila operacional"
+    focus: "Tempo médio e fila operacional"
   },
   {
     id: "team-3",
@@ -23,34 +23,34 @@ export const demoTeams = [
     lead: "Ana Ribeiro",
     activePeople: 9,
     completion: 102,
-    focus: "Visao executiva e consolidado"
+    focus: "Visão executiva e consolidado"
   }
 ];
 
 export const demoPermissionChecklist = [
   {
     id: "permission-1",
-    title: "Gestao visualiza indicadores financeiros",
-    detail: "Receita, ticket medio, status de integracao e visao consolidada."
+    title: "Gestão visualiza indicadores financeiros",
+    detail: "Receita, ticket médio, status de integração e visão consolidada."
   },
   {
     id: "permission-2",
-    title: "Supervisao acompanha ranking da propria equipe",
+    title: "Supervisão acompanha ranking da própria equipe",
     detail: "Ranking e alertas filtrados pelo time do perfil conectado."
   },
   {
     id: "permission-3",
-    title: "Operacao enxerga apenas o necessario",
-    detail: "Cards essenciais e alertas do dia, sem exposicao de dados sensiveis."
+    title: "Operação enxerga apenas o necessário",
+    detail: "Cards essenciais e alertas do dia, sem exposição de dados sensíveis."
   }
 ];
 
 export const demoRolloutSteps = [
-  "Definir como os colaboradores vao entrar no sistema",
+  "Definir como os colaboradores vão entrar no sistema",
   "Receber acesso da API ou do banco do Data System",
   "Mapear metas, realizado, ranking e alertas",
-  "Trocar o login demo por autenticacao real",
-  "Subir a versao piloto para uma equipe"
+  "Trocar o login demo por autenticação real",
+  "Subir a versão piloto para uma equipe"
 ];
 
 export function getDemoUserCountByRole() {
