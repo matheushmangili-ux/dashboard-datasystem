@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 
 import { AdminWorkspace } from "@/components/admin-workspace";
+import { MotivationalToast } from "@/components/motivational-toast";
 import { RealtimeDashboard } from "@/components/realtime-dashboard";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getPermissions } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
@@ -31,6 +33,7 @@ export function AppWorkspace({
 
   return (
     <div className="workspace-stack">
+      <MotivationalToast />
       <section className="workspace-nav card">
         <div>
           <p className="section-eyebrow">Workspace</p>
@@ -54,6 +57,7 @@ export function AppWorkspace({
               Administração
             </button>
           ) : null}
+          <ThemeToggle />
         </div>
       </section>
 

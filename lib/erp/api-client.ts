@@ -97,7 +97,7 @@ export async function loadDashboardFromApi() {
     return buildMockSnapshot(
       "api",
       "fallback",
-      `Nao foi possivel acessar a API do ERP agora: ${detail}`
+      `Não foi possível acessar a API do ERP agora: ${detail}`
     );
   } finally {
     dispose();

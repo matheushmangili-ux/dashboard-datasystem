@@ -51,14 +51,22 @@ function normalizeText(value: string) {
     .toLowerCase();
 }
 
+function parseDeltaFromLabel(label: string): number {
+  const match = label.match(/([+-]?\d+(?:[.,]\d+)?)\s*%/);
+  if (!match) return 0;
+  return parseFloat(match[1].replace(",", "."));
+}
+
 function buildChannelMetrics(channel: SalesChannelSnapshot): MetricCard[] {
+  const channelDelta = parseDeltaFromLabel(channel.deltaLabel);
+
   return [
     {
       id: `${channel.id}-revenue`,
       label: "Receita do canal",
       value: channel.revenueLabel,
       caption: `Origem ${channel.sourceLabel}`,
-      delta: 0,
+      delta: channelDelta,
       deltaLabel: channel.deltaLabel
     },
     {
@@ -66,7 +74,7 @@ function buildChannelMetrics(channel: SalesChannelSnapshot): MetricCard[] {
       label: "Pedidos",
       value: channel.ordersLabel,
       caption: "Volume acumulado no dia",
-      delta: 0,
+      delta: channelDelta,
       deltaLabel: channel.health === "connected" ? "Atualizado" : "Em monitoramento"
     },
     {
@@ -74,7 +82,7 @@ function buildChannelMetrics(channel: SalesChannelSnapshot): MetricCard[] {
       label: "Ticket médio",
       value: channel.averageTicketLabel,
       caption: "Valor médio por pedido",
-      delta: 0,
+      delta: channelDelta,
       deltaLabel: "Leitura simplificada"
     },
     {
@@ -82,7 +90,7 @@ function buildChannelMetrics(channel: SalesChannelSnapshot): MetricCard[] {
       label: "Status",
       value: channel.deltaLabel,
       caption: "Comparativo com o último ciclo",
-      delta: 0,
+      delta: channelDelta,
       deltaLabel: channel.health === "connected" ? "Canal conectado" : "Canal em fallback"
     }
   ];
@@ -244,7 +252,7 @@ function InsightBarsCard({
   return (
     <div className="leaders-card card">
       <p className="section-eyebrow">Leitura rápida</p>
-      <h2 className="section-title">Gráficos fáceis de visualizar</h2>
+      <h2 className="section-title">Gráficos fáceis de ler</h2>
       <div className="insight-bar-list">
         {insightBars.map((item) => (
           <div className="insight-bar-item" key={item.id}>
@@ -311,7 +319,7 @@ export function RealtimeDashboard({
         const message =
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar os dados agora.";
+            : "Não foi possível atualizar os dados agora.";
 
         setErrorMessage(message);
       }
@@ -371,12 +379,12 @@ export function RealtimeDashboard({
   const activeMenuItems = CHANNEL_MENUS[activeChannelId];
   const channelTitle =
     activeChannelId === "physical"
-      ? "Loja fisica no centro da operacao"
-      : "E-commerce com leitura propria";
+      ? "Loja física no centro da operação"
+      : "E-commerce com leitura própria";
   const channelCopy =
     activeChannelId === "physical"
-      ? "Uma visao limpa para acompanhar resultado do ponto de venda, equipe, atendimento e meta do dia sem excesso de informacao."
-      : "Uma pagina propria para o digital, com atalhos de e-commerce, visao de produtos e leitura facil do que mais importa.";
+      ? "Uma visão limpa para acompanhar resultado do ponto de venda, equipe, atendimento e meta do dia sem excesso de informação."
+      : "Uma página própria para o digital, com atalhos de e-commerce, visão de produtos e leitura fácil do que mais importa.";
 
   if (!activeChannel) {
     return null;
@@ -386,7 +394,7 @@ export function RealtimeDashboard({
     <main className="shell">
       <section className="user-strip card">
         <div>
-          <p className="status-label">Sessao ativa</p>
+          <p className="status-label">Sessão ativa</p>
           <h2 className="status-value">{currentUser.name}</h2>
           <p className="section-copy">
             {currentUser.title} | {currentUser.team}
@@ -400,7 +408,7 @@ export function RealtimeDashboard({
               onClick={() => setActiveChannelId("physical")}
               type="button"
             >
-              Loja fisica
+              Loja física
             </button>
             <button
               className={`tab-button ${activeChannelId === "ecommerce" ? "active" : ""}`}
@@ -443,7 +451,7 @@ export function RealtimeDashboard({
             <span className="connector-chip">{activeChannel.sourceLabel}</span>
           </div>
           <p className="section-copy">{activeChannel.description}</p>
-          <p className="channel-page-updated">Ultima atualizacao: {lastUpdated}</p>
+          <p className="channel-page-updated">Última atualização: {lastUpdated}</p>
           {isPending ? <span className="loading-badge">Sincronizando</span> : null}
           {errorMessage ? <p className="section-copy">{errorMessage}</p> : null}
         </aside>
@@ -451,7 +459,7 @@ export function RealtimeDashboard({
 
       <section className="section-grid channel-metric-grid" aria-label="Indicadores do canal">
         {activeMetrics.map((metric) => (
-          <KpiCard key={metric.id} metric={metric} />
+          <KpiCard key={metric.id} metric={metric} loading={isPending} />
         ))}
       </section>
 
@@ -463,10 +471,10 @@ export function RealtimeDashboard({
 
       <section className="section-grid channel-analytics-grid">
         <div className="chart-card card">
-          <p className="section-eyebrow">Grafico principal</p>
+          <p className="section-eyebrow">Gráfico principal</p>
           <h2 className="section-title">Desempenho do canal</h2>
           <p className="section-copy">
-            Um grafico direto para comparar a entrega ao longo do dia com a meta.
+            Um gráfico direto para comparar a entrega ao longo do dia com a meta.
           </p>
           <TrendChart points={activeTrendPoints} />
         </div>

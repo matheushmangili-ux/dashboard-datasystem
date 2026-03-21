@@ -4,6 +4,11 @@ import { getActiveConnector, getAllConnectors, getConfiguredMode } from "@/lib/e
 import { enrichSnapshotWithTray, getTrayConnectorStatus } from "@/lib/tray/service";
 import type { DashboardSnapshot } from "@/lib/types";
 
+const CACHE_TTL_MS = 8_000;
+
+let cachedSnapshot: DashboardSnapshot | null = null;
+let cacheTimestamp = 0;
+
 function ensureDashboardShape(snapshot: DashboardSnapshot): DashboardSnapshot {
   const fallback = buildMockSnapshot(
     snapshot.source.mode,
@@ -29,8 +34,19 @@ function ensureDashboardShape(snapshot: DashboardSnapshot): DashboardSnapshot {
 }
 
 export async function loadDashboardSnapshot() {
+  const now = Date.now();
+
+  if (cachedSnapshot && now - cacheTimestamp < CACHE_TTL_MS) {
+    return cachedSnapshot;
+  }
+
   const snapshot = await getActiveConnector().loadSnapshot();
-  return enrichSnapshotWithTray(ensureDashboardShape(snapshot));
+  const enriched = await enrichSnapshotWithTray(ensureDashboardShape(snapshot));
+
+  cachedSnapshot = enriched;
+  cacheTimestamp = now;
+
+  return enriched;
 }
 
 export function getIntegrationReadiness(): IntegrationReadiness {

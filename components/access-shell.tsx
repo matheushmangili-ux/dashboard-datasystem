@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { AppWorkspace } from "@/components/app-workspace";
-import { demoUsers, getRoleLabel } from "@/lib/auth/demo-users";
+import { demoUsers } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
 
 const STORAGE_KEY = "pulse-dashboard-session";
+
+const LOGO_URL =
+  "https://images.tcdn.com.br/files/548537/themes/757/img/settings/logo.png?45076445528a6de8946fee0b2dd90ccc";
 
 function loadStoredUser() {
   if (typeof window === "undefined") {
@@ -25,130 +28,115 @@ function loadStoredUser() {
   return demoUsers.find((user) => user.id === userId) ?? null;
 }
 
-function DemoAccess({
+function LoginScreen({
   onSignIn
 }: {
   onSignIn: (user: AuthUser) => void;
 }) {
-  const [selectedUserId, setSelectedUserId] = useState(demoUsers[0]?.id ?? "");
-  const [pin, setPin] = useState("");
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const selectedUser = useMemo(
-    () => demoUsers.find((user) => user.id === selectedUserId) ?? demoUsers[0],
-    [selectedUserId]
-  );
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!selectedUser) {
-      setErrorMessage("Selecione um perfil de acesso.");
+    if (!login.trim() || !password.trim()) {
+      setErrorMessage("Preencha o login e a senha.");
       return;
     }
 
-    if (pin !== selectedUser.pin) {
-      setErrorMessage("PIN inválido para este perfil.");
+    const matchedUser = demoUsers.find(
+      (user) =>
+        (user.name.toLowerCase() === login.trim().toLowerCase() ||
+          user.id === login.trim()) &&
+        user.pin === password.trim()
+    );
+
+    if (!matchedUser) {
+      setErrorMessage("Login ou senha inválidos.");
       return;
     }
 
     setErrorMessage(null);
-    onSignIn(selectedUser);
+    onSignIn(matchedUser);
   };
 
   return (
-    <main className="shell access-shell">
-      <section className="hero">
-        <span className="hero-topline">Pulse access | colaborador</span>
-        <div className="hero-grid">
-          <div>
-            <h1>
-              Acesso por perfil,
+    <main className="login-page">
+      <div className="login-container">
+        <div className="login-brand-panel">
+          <div className="login-brand-content">
+            <img
+              src={LOGO_URL}
+              alt="Texas Center"
+              className="login-logo"
+            />
+            <h1 className="login-welcome">
+              Seja bem-vindo ao
               <br />
-              pronto para escalar.
+              Texas Center Dashboard
             </h1>
-            <p>
-              Enquanto a autenticação do ERP ainda não chegou, o produto já pode
-              operar com perfis simulados. Depois, basta trocar esta etapa por SSO,
-              API ou login nativo sem refazer o dashboard.
+            <p className="login-brand-copy">
+              Acompanhe os resultados da operação em tempo real.
+              Loja física e e-commerce em um só lugar.
             </p>
           </div>
-
-          <aside className="status-panel">
-            <p className="status-label">Perfis liberados</p>
-            <h2 className="status-value">{demoUsers.length} acessos demo</h2>
-            <p className="status-note">
-              Gestão, supervisão e operação já possuem permissões visuais
-              separadas.
-            </p>
-          </aside>
         </div>
-      </section>
 
-      <section className="auth-layout">
-        <article className="card auth-card">
-          <p className="section-eyebrow">Entrar</p>
-          <h2 className="section-title">Escolha um perfil</h2>
-          <p className="section-copy">
-            Esta camada é provisória, mas já organiza a experiência por papel.
-          </p>
-
-          <form className="sign-in-form" onSubmit={handleSubmit}>
-            <div className="identity-grid">
-              {demoUsers.map((user) => {
-                const active = user.id === selectedUserId;
-
-                return (
-                  <button
-                    className={`identity-card ${active ? "active" : ""}`}
-                    key={user.id}
-                    onClick={() => {
-                      setSelectedUserId(user.id);
-                      setPin("");
-                      setErrorMessage(null);
-                    }}
-                    type="button"
-                  >
-                    <span className="identity-role">{getRoleLabel(user.role)}</span>
-                    <strong>{user.name}</strong>
-                    <span>{user.title}</span>
-                    <span>{user.team}</span>
-                  </button>
-                );
-              })}
+        <div className="login-form-panel">
+          <article className="login-form-card">
+            <div className="login-form-header">
+              <img
+                src={LOGO_URL}
+                alt="Texas Center"
+                className="login-logo-small"
+              />
+              <p className="section-eyebrow">Acesso ao painel</p>
+              <h2 className="login-form-title">Entrar</h2>
             </div>
 
-            <label className="field-block">
-              <span>PIN de acesso</span>
-              <input
-                className="field-input"
-                onChange={(event) => setPin(event.target.value)}
-                placeholder="Digite o PIN demo"
-                type="password"
-                value={pin}
-              />
-            </label>
+            <form className="login-form" onSubmit={handleSubmit}>
+              <label className="field-block">
+                <span>Login</span>
+                <input
+                  className="field-input"
+                  onChange={(event) => setLogin(event.target.value)}
+                  placeholder="Digite seu login"
+                  type="text"
+                  value={login}
+                  autoComplete="username"
+                />
+              </label>
 
-            <p className="field-hint">PINs demo: 1234, 2345 e 3456.</p>
+              <label className="field-block">
+                <span>Senha</span>
+                <input
+                  className="field-input"
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Digite sua senha"
+                  type="password"
+                  value={password}
+                  autoComplete="current-password"
+                />
+              </label>
 
-            {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
+              {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
 
-            <button className="primary-button" type="submit">
-              Entrar no painel
-            </button>
-          </form>
-        </article>
+              <button className="primary-button login-button" type="submit">
+                Entrar
+              </button>
+            </form>
 
-        <article className="card auth-card compact">
-          <p className="section-eyebrow">Como fica depois</p>
-          <h2 className="section-title">Porta pronta para SSO ou ERP</h2>
-          <p className="section-copy">
-            Quando a autenticação real existir, esta tela pode ser trocada por login
-            corporativo, token do ERP ou permissão por equipe sem alterar os
-            componentes de visualização.
-          </p>
-        </article>
-      </section>
+            <p className="login-hint">
+              Use o nome do colaborador como login e o PIN como senha.
+            </p>
+          </article>
+
+          <footer className="login-footer">
+            <span>Desenvolvido por: matheusmangili</span>
+          </footer>
+        </div>
+      </div>
     </main>
   );
 }
@@ -180,25 +168,17 @@ export function AccessShell({
 
   if (currentUser === undefined) {
     return (
-      <main className="shell access-shell">
-        <section className="hero">
-          <span className="hero-topline">Pulse access | carregando</span>
-          <div className="hero-grid">
-            <div>
-              <h1>
-                Abrindo o painel,
-                <br />
-                um instante.
-              </h1>
-            </div>
-          </div>
-        </section>
+      <main className="login-page">
+        <div className="login-loading">
+          <img src={LOGO_URL} alt="Texas Center" className="login-logo" />
+          <p>Carregando...</p>
+        </div>
       </main>
     );
   }
 
   if (!currentUser) {
-    return <DemoAccess onSignIn={handleSignIn} />;
+    return <LoginScreen onSignIn={handleSignIn} />;
   }
 
   return (

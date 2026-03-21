@@ -5,6 +5,7 @@ import {
 } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { ErrorBoundary } from "@/components/error-boundary";
 import "./globals.css";
 
 const headingFont = Manrope({
@@ -41,7 +42,7 @@ export default function RootLayout({
       <body
         className={`${headingFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
       >
-        {children}
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   );

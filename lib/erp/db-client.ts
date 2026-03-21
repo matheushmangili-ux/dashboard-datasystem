@@ -105,7 +105,7 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
         value: formatPercentage(achievement),
         caption: "Comparativo atual",
         delta: 0,
-        deltaLabel: "Atualizacao em tempo real"
+        deltaLabel: "Atualização em tempo real"
       },
       {
         id: "orders",
@@ -117,9 +117,9 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
       },
       {
         id: "avg-ticket",
-        label: "Ticket medio",
+        label: "Ticket médio",
         value: formatCurrency(avgTicket),
-        caption: `Conversao ${conversion.toFixed(1)}%`,
+        caption: `Conversão ${conversion.toFixed(1)}%`,
         delta: 0,
         deltaLabel: "Leitura do ERP"
       }
@@ -127,7 +127,7 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
     salesChannels: [
       {
         id: "physical",
-        label: "Loja Fisica",
+        label: "Loja Física",
         description: "Canal presencial alimentado pelo ERP.",
         sourceLabel: "ERP Data System",
         health: "connected",
@@ -228,7 +228,7 @@ export async function loadDashboardFromDatabase() {
       options: {
         encrypt: process.env.ERP_DB_ENCRYPT === "true",
         trustServerCertificate:
-          process.env.ERP_DB_TRUST_SERVER_CERTIFICATE !== "false"
+          process.env.ERP_DB_TRUST_SERVER_CERTIFICATE === "true"
       }
     });
     pool = connectedPool;
@@ -243,7 +243,7 @@ export async function loadDashboardFromDatabase() {
     return buildMockSnapshot(
       "database",
       "fallback",
-      "O banco respondeu, mas os recordsets nao seguem o contrato esperado para o dashboard."
+      "O banco respondeu, mas os recordsets não seguem o contrato esperado para o dashboard."
     );
   } catch (error) {
     const detail =
@@ -252,7 +252,7 @@ export async function loadDashboardFromDatabase() {
     return buildMockSnapshot(
       "database",
       "fallback",
-      `Nao foi possivel consultar o banco do ERP agora: ${detail}`
+      `Não foi possível consultar o banco do ERP agora: ${detail}`
     );
   } finally {
     await pool?.close();

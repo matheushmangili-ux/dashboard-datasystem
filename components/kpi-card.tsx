@@ -12,9 +12,15 @@ function getMetricTone(delta: number) {
   return "metric-tone-warning";
 }
 
-export function KpiCard({ metric }: { metric: MetricCard }) {
+export function KpiCard({
+  metric,
+  loading
+}: {
+  metric: MetricCard;
+  loading?: boolean;
+}) {
   return (
-    <article className="kpi-card card">
+    <article className={`kpi-card card ${loading ? "is-loading" : ""}`}>
       <p className="kpi-label">{metric.label}</p>
       <p className="kpi-value">{metric.value}</p>
       <div className="kpi-footer">
@@ -24,4 +30,3 @@ export function KpiCard({ metric }: { metric: MetricCard }) {
     </article>
   );
 }
-
