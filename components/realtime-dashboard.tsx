@@ -483,7 +483,7 @@ export function RealtimeDashboard({
         <InsightBarsCard channel={activeChannel} trendPoints={activeTrendPoints} />
       </section>
 
-      {permissions.canViewFinancials && snapshot.yearOverYear.length > 0 ? (
+      {permissions.canViewFinancials && snapshot.yearOverYear?.length > 0 ? (
         <YearOverYearSection items={snapshot.yearOverYear} />
       ) : null}
 
