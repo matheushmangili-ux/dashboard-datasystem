@@ -1,15 +1,23 @@
-# Pulse ERP Dashboard - v2.0 Executive Premium 🚀
+# Texas Center - Western Dashboard v2.1
 
-MVP de painel em tempo real para colaboradores acompanharem resultados operacionais do ERP Data System integrados ao E-Commerce Tray, agora com uma interface Premium focada em Liderança Executiva.
+Painel em tempo real para colaboradores acompanharem resultados operacionais do ERP Data System integrados ao E-Commerce Tray, com identidade visual Western/Country e interface moderna.
 
-## 🌟 Versão Atual: v2.0 - Executive Premium UI & Retro Animations
-*Principais atualizações e funcionalidades entregues nesta versão:*
+## Versão Atual: v2.1 - Sidebar Benchmark + Animações + Humor Western
 
-- **Design Premium ("Glassmorphism"):** Interface totalmente refeita em Dark Mode, desenhada para clareza em monitores de grande formato e reuniões gerenciais, transmitindo credibilidade e sofisticação.
-- **Animações Retro (Gameboy Edition):** Animações contínuas de fundo com ET/UFO e um Cavalo operando via Pixel Art 100% SVG in-line (sem uso de GIFs externos), garantindo performance e uma identidade visual gamer 8-bits nas cores do clássico Gameboy.
-- **Acesso Demo Centralizado:** Fluxo de login polido para uso de demonstração rápida (Credenciais padrão da v2.0: **`admin` / `admin`**).
-- **Dual-Channel Dashboard:** Visualização separada em abas de "Loja Física (Data System)" e "E-commerce (Tray)", cada uma possuindo seu próprio ranking, meta, e gráfico de tendência.
-- **Deploy Otimizado (Vercel Ready):** Refatoração rigorosa em Typescript para aprovação em builds rigorosos e deploy de produção em um clique via Vercel.
+### v2.1 - Sidebar, Animações Sutis e Humor
+- **Sidebar com benchmark de varejo:** Menu reorganizado em seções ("Operacional", "Canais de Venda", "Gestão") inspirado em dashboards como Bling ERP, Shopify e Omie, com divisores dourados, badges de contagem, mini-card de faturamento do dia e indicadores de status de conexão (Data System / Tray).
+- **Tooltips western:** Cada item do menu possui tooltips temáticos ("Onde o dinheiro galopa", "Os cowboys da operação", "O saloon principal").
+- **Frases de cowboy rotativas:** 12 frases de humor western que rotacionam no footer da sidebar a cada 12 segundos.
+- **Easter egg:** Clique no logo TC para ver a animação de laço.
+- **Animações sutis na home:** A atmosfera de deserto da tela de login se estende ao dashboard com gradiente de céu, estrelas cintilantes, partículas de poeira flutuantes e silhueta de horizonte — tudo em opacidade muito baixa (3-6%) para não distrair.
+
+### v2.0 - Western UI Overhaul
+- **Tema Western/Country completo:** Paleta de cores inspirada no velho oeste (couro, dourado, areia, ferrugem, cacto) com suporte a light e dark mode.
+- **Login animado:** Cena de deserto com sol pulsante, tumbleweeds rolando, cactos balançando, estrelas cintilando e partículas de poeira, com ornamentos dourados no card.
+- **Dashboard temático:** Animações SVG de cavalo galopando, tumbleweeds, cactos e nuvens de poeira no rodapé. Footer com separador gradiente dourado.
+- **Dual-Channel Dashboard:** Visualização separada em abas de "Loja Física (Data System)" e "E-commerce (Tray)", cada uma com ranking, meta e gráfico de tendência.
+- **Credenciais demo:** Login com **Ana Ribeiro / 1234** (ou admin / admin).
+- **Deploy otimizado (Vercel Ready):** Build TypeScript rigoroso com deploy em um clique via Vercel.
 
 ---
 
