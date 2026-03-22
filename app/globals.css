@@ -163,6 +163,33 @@
   100% { background-position: 200% center; }
 }
 
+/* Western ornament corners for login card */
+.western-ornament {
+  position: relative;
+}
+.western-ornament::before,
+.western-ornament::after {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-color: var(--western-gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.western-ornament::before {
+  top: 12px;
+  left: 12px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.western-ornament::after {
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
 /* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
