@@ -17,10 +17,10 @@ export function GoalGauge({ percent, label, value }: GoalGaugeProps) {
   const circumference = 2 * Math.PI * radius;
   const safePercent = clampPercent(percent);
   const offset = circumference - (safePercent / 100) * circumference;
-  const gradientId = useId().replace(/:/g, "");
+  const gradientId = `gauge-gradient-${useId().replace(/:/g, "")}`;
 
   return (
-    <article className="card-tech goal-gauge-card">
+    <article className="card-tech goal-gauge-card animate-tech">
       <div
         className="goal-ring-container"
         role="img"
@@ -29,8 +29,8 @@ export function GoalGauge({ percent, label, value }: GoalGaugeProps) {
         <svg width="120" height="120" className="goal-ring-svg" aria-hidden="true">
           <defs>
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#00f2ff" />
-              <stop offset="100%" stopColor="#10b981" />
+              <stop offset="0%" stopColor="var(--neon-cyan, #00f2ff)" />
+              <stop offset="100%" stopColor="var(--neon-emerald, #10b981)" />
             </linearGradient>
           </defs>
           <circle cx="60" cy="60" r={radius} className="goal-ring-track" />

@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { LogOut, TrendingUp, Trophy, AlertTriangle } from "lucide-react";
 
 import { KpiCard } from "@/components/kpi-card";
+import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
 import { HorseAnimation } from "@/components/animations";
 import { getRoleLabel } from "@/lib/auth/demo-users";
@@ -65,8 +66,8 @@ export function RealtimeDashboard({
   const activeLeaderboard = useMemo(
     () =>
       snapshot.channelLeaderboards.find(
-        (leaderboard) => leaderboard.channelId === activeChannelId
-      )?.leaders ?? [],
+        (item) => item.channelId === activeChannelId
+      ) ?? snapshot.channelLeaderboards[0],
     [activeChannelId, snapshot.channelLeaderboards]
   );
 
@@ -125,8 +126,12 @@ export function RealtimeDashboard({
               <LogOut className="w-5 h-5" />
             </button>
           </div>
+          <DashboardClock />
+          <button className="secondary-button" onClick={onSignOut} type="button">
+            Sair
+          </button>
         </div>
-      </header>
+      </section>
 
       {/* DASHBOARD CONTENT */}
       <main className="flex-1 max-w-[1600px] w-full mx-auto p-6 space-y-6">

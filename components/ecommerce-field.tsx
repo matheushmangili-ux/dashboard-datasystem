@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 import type { SalesChannelSnapshot } from "@/lib/types";
@@ -17,8 +18,8 @@ const modules: ModuleCard[] = [
   {
     id: "results",
     title: "Resultados",
-    subtitle: "Vendas e faturamento",
-    status: "Pronto para ligar",
+    subtitle: "Vendas e faturacao",
+    status: "Pronto a usar",
     tone: "live",
     icon: (
       <svg aria-hidden="true" className="ecommerce-module-icon" viewBox="0 0 24 24">
@@ -28,9 +29,9 @@ const modules: ModuleCard[] = [
   },
   {
     id: "traffic",
-    title: "Tráfego",
+    title: "Trafego",
     subtitle: "Visitantes e origem",
-    status: "Em construção",
+    status: "Em construcao",
     tone: "pending",
     icon: (
       <svg aria-hidden="true" className="ecommerce-module-icon" viewBox="0 0 24 24">
@@ -42,7 +43,7 @@ const modules: ModuleCard[] = [
     id: "keywords",
     title: "Palavras-chave",
     subtitle: "SEO e performance",
-    status: "Em construção",
+    status: "Em construcao",
     tone: "pending",
     icon: (
       <svg aria-hidden="true" className="ecommerce-module-icon" viewBox="0 0 24 24">
@@ -52,9 +53,9 @@ const modules: ModuleCard[] = [
   },
   {
     id: "support",
-    title: "Atendimento",
+    title: "Apoio ao Cliente",
     subtitle: "Chats e tempo de resposta",
-    status: "Em construção",
+    status: "Em construcao",
     tone: "pending",
     icon: (
       <svg aria-hidden="true" className="ecommerce-module-icon" viewBox="0 0 24 24">
@@ -66,7 +67,7 @@ const modules: ModuleCard[] = [
     id: "customers",
     title: "Clientes",
     subtitle: "Novos e recorrentes",
-    status: "Em construção",
+    status: "Em construcao",
     tone: "pending",
     icon: (
       <svg aria-hidden="true" className="ecommerce-module-icon" viewBox="0 0 24 24">
@@ -76,9 +77,9 @@ const modules: ModuleCard[] = [
   },
   {
     id: "products",
-    title: "Produtos",
-    subtitle: "Performance e estoque",
-    status: "Em construção",
+    title: "Artigos",
+    subtitle: "Performance e stock",
+    status: "Em construcao",
     tone: "pending",
     icon: (
       <svg aria-hidden="true" className="ecommerce-module-icon" viewBox="0 0 24 24">
@@ -97,39 +98,75 @@ export function EcommerceField({
     <section className="ecommerce-shell">
       <div className="ecommerce-layout">
         <article className="ecommerce-brand-panel">
-          <div className="ecommerce-brand-badge">Texas Center</div>
-          <p className="section-eyebrow">TexCommerce</p>
-          <h4 className="ecommerce-title">Relatórios estratégicos do e-commerce</h4>
-          <p className="section-copy">
-            Base visual reaproveitada do HTML enviado pelo colaborador, pronta
-            para plugar indicadores, relatórios e atalhos reais da operação
-            digital.
-          </p>
+          <Image
+            src="/western-desert.svg"
+            alt=""
+            aria-hidden="true"
+            width={1440}
+            height={320}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: "100%",
+              height: "auto",
+              opacity: 0.1,
+              pointerEvents: "none"
+            }}
+          />
+          <Image
+            src="/western-corner.svg"
+            alt=""
+            aria-hidden="true"
+            width={120}
+            height={120}
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: "120px",
+              height: "auto",
+              opacity: 0.15,
+              pointerEvents: "none"
+            }}
+          />
 
-          <div className="ecommerce-summary-grid">
-            <div className="ecommerce-summary-card">
-              <span>Receita</span>
-              <strong>{channel.revenueLabel}</strong>
-            </div>
-            <div className="ecommerce-summary-card">
-              <span>Pedidos</span>
-              <strong>{channel.ordersLabel}</strong>
-            </div>
-            <div className="ecommerce-summary-card">
-              <span>Ticket médio</span>
-              <strong>{channel.averageTicketLabel}</strong>
-            </div>
-            <div className="ecommerce-summary-card">
-              <span>Status</span>
-              <strong>{channel.deltaLabel}</strong>
-            </div>
-          </div>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div className="ecommerce-brand-badge">Texas Center</div>
+            <p className="section-eyebrow" style={{ marginTop: "16px" }}>
+              TexCommerce
+            </p>
+            <h4 className="ecommerce-title">Relatorios estrategicos do e-commerce</h4>
+            <p className="section-copy">
+              Base visual reaproveitada do HTML enviado, pronta para plugar
+              indicadores, relatorios e atalhos reais da operacao digital.
+            </p>
 
-          <div className="ecommerce-brand-footer">
-            <span className="connector-chip">{channel.sourceLabel}</span>
-            <span className={`connector-health ${channel.health}`}>
-              {channel.health}
-            </span>
+            <div className="ecommerce-summary-grid">
+              <div className="ecommerce-summary-card">
+                <span>Receita</span>
+                <strong>{channel.revenueLabel}</strong>
+              </div>
+              <div className="ecommerce-summary-card">
+                <span>Pedidos</span>
+                <strong>{channel.ordersLabel}</strong>
+              </div>
+              <div className="ecommerce-summary-card">
+                <span>Ticket medio</span>
+                <strong>{channel.averageTicketLabel}</strong>
+              </div>
+              <div className="ecommerce-summary-card">
+                <span>Status</span>
+                <strong>{channel.deltaLabel}</strong>
+              </div>
+            </div>
+
+            <div className="ecommerce-brand-footer">
+              <span className="connector-chip">{channel.sourceLabel}</span>
+              <span className={`connector-health ${channel.health}`}>
+                {channel.health}
+              </span>
+            </div>
           </div>
         </article>
 
@@ -138,7 +175,7 @@ export function EcommerceField({
             <div>
               <p className="section-eyebrow">Atalhos do canal</p>
               <h4 className="ecommerce-title ecommerce-title-small">
-                Módulos do e-commerce
+                Modulos do e-commerce
               </h4>
             </div>
             <button className="ecommerce-calc-button" type="button">
@@ -166,7 +203,7 @@ export function EcommerceField({
           </div>
 
           <p className="ecommerce-footer-note">
-            Relatórios internos do e-commerce Texas Center.
+            Relatorios internos do e-commerce Texas Center.
           </p>
         </article>
       </div>
