@@ -1,393 +1,250 @@
-import type { DashboardSnapshot, ErpMode } from "@/lib/types";
+import type {
+  AlertItem,
+  ChannelLeaderboard,
+  DashboardSnapshot,
+  ErpMode,
+  MetricCard,
+  ProductRankingEntry,
+  SalesChannelSnapshot,
+  SourceHealth,
+  YearOverYearItem
+} from "@/lib/types";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0
+    currency: "BRL"
   }).format(value);
 }
 
-function formatPercentage(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "percent",
-    maximumFractionDigits: 1
-  }).format(value / 100);
-}
+const GLOBAL_METRICS: MetricCard[] = [
+  {
+    id: "total-revenue",
+    label: "Faturamento Global",
+    value: formatCurrency(185400),
+    caption: "Hoje: Loja Física + E-commerce",
+    delta: 12.5,
+    deltaLabel: "vs dia anterior"
+  },
+  {
+    id: "active-customers",
+    label: "Fluxo de Clientes",
+    value: "1.240",
+    caption: "Tráfego online + loja física",
+    delta: 5.2,
+    deltaLabel: "Acima da média"
+  }
+];
 
-function toDeltaLabel(delta: number) {
-  const signal = delta >= 0 ? "+" : "";
-  return `${signal}${delta.toFixed(1)}% vs ontem`;
-}
+const PHYSICAL_CHANNEL: SalesChannelSnapshot = {
+  id: "physical",
+  label: "Texas Center - Matriz",
+  description: "Operação física rodando em Data System ERP.",
+  sourceLabel: "Data System",
+  health: "connected",
+  revenueLabel: formatCurrency(102500),
+  ordersLabel: "135 tickets",
+  ordersCount: 135,
+  averageTicketLabel: formatCurrency(759.25),
+  piecesPerTicket: 2.8,
+  conversionRate: 24.5,
+  deltaLabel: "+8% vs ontem",
+  trendPoints: [
+    { label: "09:00", value: 8000, target: 10000, displayValue: "R$ 8k" },
+    { label: "11:00", value: 25000, target: 20000, displayValue: "R$ 25k" },
+    { label: "13:00", value: 45000, target: 40000, displayValue: "R$ 45k" },
+    { label: "15:00", value: 68000, target: 60000, displayValue: "R$ 68k" },
+    { label: "17:00", value: 102500, target: 90000, displayValue: "R$ 102k" }
+  ]
+};
+
+const ECOMMERCE_CHANNEL: SalesChannelSnapshot = {
+  id: "ecommerce",
+  label: "Texas Center - Digital",
+  description: "Operação online sincronizada com a Tray.",
+  sourceLabel: "Tray E-commerce",
+  health: "connected",
+  revenueLabel: formatCurrency(82900),
+  ordersLabel: "210 pedidos",
+  ordersCount: 210,
+  averageTicketLabel: formatCurrency(394.76),
+  piecesPerTicket: 1.5,
+  conversionRate: 2.1,
+  deltaLabel: "+15% vs ontem",
+  trendPoints: [
+    { label: "09:00", value: 5000, target: 8000, displayValue: "R$ 5k" },
+    { label: "11:00", value: 18000, target: 18000, displayValue: "R$ 18k" },
+    { label: "13:00", value: 36000, target: 30000, displayValue: "R$ 36k" },
+    { label: "15:00", value: 58000, target: 50000, displayValue: "R$ 58k" },
+    { label: "17:00", value: 82900, target: 75000, displayValue: "R$ 82k" }
+  ]
+};
+
+const PHYSICAL_LEADERS: ChannelLeaderboard = {
+  channelId: "physical",
+  title: "Ranking Data System",
+  leaders: [
+    {
+      id: "vnd-1",
+      rank: 1,
+      name: "Ana Silva",
+      team: "Vendas Loja 1",
+      revenueLabel: formatCurrency(32500),
+      salesCount: 45,
+      ticketMedioLabel: formatCurrency(722),
+      piecesPerTicket: 3.1,
+      conversionRate: 28.5,
+      goalAchievement: 105,
+      status: "Batendo Meta"
+    },
+    {
+      id: "vnd-2",
+      rank: 2,
+      name: "Carlos Mendes",
+      team: "Vendas VIP",
+      revenueLabel: formatCurrency(28900),
+      salesCount: 30,
+      ticketMedioLabel: formatCurrency(963),
+      piecesPerTicket: 2.5,
+      conversionRate: 22.0,
+      goalAchievement: 98,
+      status: "No ritmo"
+    },
+    {
+      id: "vnd-3",
+      rank: 3,
+      name: "Roberto Dias",
+      team: "Vendas Loja 1",
+      revenueLabel: formatCurrency(19800),
+      salesCount: 35,
+      ticketMedioLabel: formatCurrency(565),
+      piecesPerTicket: 2.8,
+      conversionRate: 19.5,
+      goalAchievement: 85,
+      status: "Abaixo da Média"
+    }
+  ]
+};
+
+const ECOMMERCE_LEADERS: ChannelLeaderboard = {
+  channelId: "ecommerce",
+  title: "Performance de Tráfego",
+  leaders: [
+    {
+      id: "cmp-1",
+      rank: 1,
+      name: "Google Ads (Search)",
+      team: "Mídia Paga",
+      revenueLabel: formatCurrency(45000),
+      salesCount: 110,
+      ticketMedioLabel: formatCurrency(409),
+      piecesPerTicket: 1.6,
+      conversionRate: 3.5,
+      goalAchievement: 110,
+      status: "Alta Eficiência"
+    },
+    {
+      id: "cmp-2",
+      rank: 2,
+      name: "Instagram Ads",
+      team: "Mídia Paga",
+      revenueLabel: formatCurrency(22500),
+      salesCount: 65,
+      ticketMedioLabel: formatCurrency(346),
+      piecesPerTicket: 1.4,
+      conversionRate: 1.8,
+      goalAchievement: 95,
+      status: "No ritmo"
+    }
+  ]
+};
+
+const TOP_PRODUCTS: ProductRankingEntry[] = [
+  {
+    id: "p1",
+    name: "Jaqueta de Couro Premium",
+    channelLabel: "Loja Física / E-commerce",
+    unitsSold: 45,
+    revenueLabel: formatCurrency(40500),
+    statusLabel: "Curva A"
+  },
+  {
+    id: "p2",
+    name: "Calça Jeans Básica",
+    channelLabel: "Loja Física",
+    unitsSold: 120,
+    revenueLabel: formatCurrency(24000),
+    statusLabel: "Curva A"
+  },
+  {
+    id: "p3",
+    name: "Bota Couro Tracker",
+    channelLabel: "E-commerce",
+    unitsSold: 30,
+    revenueLabel: formatCurrency(15000),
+    statusLabel: "Curva B"
+  }
+];
+
+const YOY_METRICS: YearOverYearItem[] = [
+  {
+    id: "yoy-phys",
+    label: "Faturamento Físico YoY",
+    currentValue: formatCurrency(102500),
+    previousValue: formatCurrency(90000),
+    deltaPercent: 13.8,
+    trend: "up"
+  },
+  {
+    id: "yoy-ecom",
+    label: "Faturamento Digital YoY",
+    currentValue: formatCurrency(82900),
+    previousValue: formatCurrency(65000),
+    deltaPercent: 27.5,
+    trend: "up"
+  }
+];
+
+const ALERTS: AlertItem[] = [
+  {
+    id: "a1",
+    title: "Queda de conversão no site",
+    message: "A taxa de conversão caiu 15% na última hora.",
+    severity: "medium"
+  },
+  {
+    id: "a2",
+    title: "Ruptura iminente",
+    message: "Jaqueta de Couro Premium está com estoque abaixo do mínimo.",
+    severity: "high"
+  }
+];
 
 export function buildMockSnapshot(
-  mode: ErpMode = "mock",
-  health: DashboardSnapshot["source"]["health"] = "fallback",
-  detail = "Painel carregado com dados demonstrativos enquanto a integração real não está configurada."
+  mode: ErpMode,
+  health: SourceHealth,
+  detail: string
 ): DashboardSnapshot {
-  const now = new Date();
-  const minuteFactor = now.getHours() * 60 + now.getMinutes();
-  const revenue = 134_000 + (minuteFactor % 11) * 4_250;
-  const revenueTarget = 182_000;
-  const orders = 184 + (minuteFactor % 17) * 3;
-  const avgTicket = revenue / orders;
-  const conversion = 31 + (minuteFactor % 9) * 0.7;
-  const physicalRevenue = revenue * 0.58;
-  const ecommerceRevenue = revenue * 0.42;
-  const physicalOrders = Math.round(orders * 0.54);
-  const ecommerceOrders = Math.round(orders * 0.46);
-
   return {
-    generatedAt: now.toISOString(),
+    generatedAt: new Date().toISOString(),
     source: {
       mode,
-      label:
-        mode === "hybrid"
-          ? "Modo híbrido"
-          : mode === "api"
-            ? "API do ERP"
-            : mode === "database"
-              ? "Banco do ERP"
-              : "Modo demonstração",
+      label: "Mock Service",
       health,
       detail
     },
     summary: {
-      companyName: "Data System",
+      companyName: "Texas Center",
       periodLabel: "Hoje",
       activeEmployees: 42
     },
-    metrics: [
-      {
-        id: "net-revenue",
-        label: "Receita do dia",
-        value: formatCurrency(revenue),
-        caption: `Meta ${formatCurrency(revenueTarget)}`,
-        delta: 8.4,
-        deltaLabel: toDeltaLabel(8.4)
-      },
-      {
-        id: "achievement",
-        label: "Meta atingida",
-        value: formatPercentage((revenue / revenueTarget) * 100),
-        caption: "Meta geral da operação",
-        delta: 3.2,
-        deltaLabel: toDeltaLabel(3.2)
-      },
-      {
-        id: "orders",
-        label: "Pedidos processados",
-        value: orders.toString(),
-        caption: "Pedidos faturados hoje",
-        delta: -1.8,
-        deltaLabel: toDeltaLabel(-1.8)
-      },
-      {
-        id: "avg-ticket",
-        label: "Ticket médio",
-        value: formatCurrency(avgTicket),
-        caption: `Conversão ${conversion.toFixed(1)}%`,
-        delta: 5.1,
-        deltaLabel: toDeltaLabel(5.1)
-      }
-    ],
-    salesChannels: [
-      {
-        id: "physical",
-        label: "Loja física",
-        description: "Resultados originados no ponto de venda e na operação presencial.",
-        sourceLabel: "ERP Data System",
-        health: health === "missing-config" ? "fallback" : health,
-        revenueLabel: formatCurrency(physicalRevenue),
-        ordersLabel: physicalOrders.toString(),
-        averageTicketLabel: formatCurrency(physicalRevenue / Math.max(physicalOrders, 1)),
-        deltaLabel: "+6.8% vs ontem",
-        trendPoints: [
-          { label: "08h", value: 8, target: 9, displayValue: "8k" },
-          { label: "09h", value: 11, target: 10, displayValue: "11k" },
-          { label: "10h", value: 12, target: 13, displayValue: "12k" },
-          { label: "11h", value: 15, target: 14, displayValue: "15k" },
-          { label: "12h", value: 10, target: 11, displayValue: "10k" },
-          { label: "13h", value: 9, target: 10, displayValue: "9k" },
-          { label: "14h", value: 14, target: 13, displayValue: "14k" },
-          { label: "15h", value: 18, target: 16, displayValue: "18k" }
-        ]
-      },
-      {
-        id: "ecommerce",
-        label: "E-commerce",
-        description: "Pedidos online, catálogo digital e jornada da loja virtual.",
-        sourceLabel: "Tray",
-        health: "fallback",
-        revenueLabel: formatCurrency(ecommerceRevenue),
-        ordersLabel: ecommerceOrders.toString(),
-        averageTicketLabel: formatCurrency(
-          ecommerceRevenue / Math.max(ecommerceOrders, 1)
-        ),
-        deltaLabel: "+11.2% vs ontem",
-        trendPoints: [
-          { label: "08h", value: 6, target: 8, displayValue: "6k" },
-          { label: "09h", value: 7, target: 9, displayValue: "7k" },
-          { label: "10h", value: 10, target: 11, displayValue: "10k" },
-          { label: "11h", value: 12, target: 11, displayValue: "12k" },
-          { label: "12h", value: 11, target: 12, displayValue: "11k" },
-          { label: "13h", value: 7, target: 8, displayValue: "7k" },
-          { label: "14h", value: 10, target: 9, displayValue: "10k" },
-          { label: "15h", value: 12, target: 12, displayValue: "12k" }
-        ]
-      }
-    ],
-    trendPoints: [
-      { label: "08h", value: 14, target: 18, displayValue: "14k" },
-      { label: "09h", value: 18, target: 20, displayValue: "18k" },
-      { label: "10h", value: 22, target: 24, displayValue: "22k" },
-      { label: "11h", value: 27, target: 25, displayValue: "27k" },
-      { label: "12h", value: 21, target: 23, displayValue: "21k" },
-      { label: "13h", value: 16, target: 18, displayValue: "16k" },
-      { label: "14h", value: 24, target: 22, displayValue: "24k" },
-      { label: "15h", value: 30, target: 28, displayValue: "30k" }
-    ],
-    leaders: [
-      {
-        id: "leader-1",
-        rank: 1,
-        name: "Mariana Costa",
-        team: "Comercial Sul",
-        displayValue: formatCurrency(42_900),
-        status: "129% da meta"
-      },
-      {
-        id: "leader-2",
-        rank: 2,
-        name: "Carlos Mendes",
-        team: "Inside Sales",
-        displayValue: formatCurrency(39_200),
-        status: "118% da meta"
-      },
-      {
-        id: "leader-3",
-        rank: 3,
-        name: "Juliana Rocha",
-        team: "Operação B2B",
-        displayValue: formatCurrency(35_700),
-        status: "111% da meta"
-      }
-    ],
-    channelLeaderboards: [
-      {
-        channelId: "physical",
-        title: "Top colaboradores da loja física",
-        leaders: [
-          {
-            id: "physical-leader-1",
-            rank: 1,
-            name: "Mariana Costa",
-            team: "Loja Centro",
-            displayValue: formatCurrency(24_900),
-            status: "118% da meta"
-          },
-          {
-            id: "physical-leader-2",
-            rank: 2,
-            name: "Eduardo Lima",
-            team: "Loja Norte",
-            displayValue: formatCurrency(22_300),
-            status: "110% da meta"
-          },
-          {
-            id: "physical-leader-3",
-            rank: 3,
-            name: "Bianca Souza",
-            team: "Loja Sul",
-            displayValue: formatCurrency(19_800),
-            status: "103% da meta"
-          }
-        ]
-      },
-      {
-        channelId: "ecommerce",
-        title: "Top colaboradores do e-commerce",
-        leaders: [
-          {
-            id: "ecommerce-leader-1",
-            rank: 1,
-            name: "Carlos Mendes",
-            team: "Inside Sales",
-            displayValue: formatCurrency(18_400),
-            status: "129 pedidos"
-          },
-          {
-            id: "ecommerce-leader-2",
-            rank: 2,
-            name: "Juliana Rocha",
-            team: "Marketplace",
-            displayValue: formatCurrency(16_900),
-            status: "117 pedidos"
-          },
-          {
-            id: "ecommerce-leader-3",
-            rank: 3,
-            name: "Renato Alves",
-            team: "Atendimento Digital",
-            displayValue: formatCurrency(15_300),
-            status: "108 pedidos"
-          }
-        ]
-      }
-    ],
-    topProducts: [
-      {
-        id: "product-top-1",
-        name: "Bota Canyon Classic",
-        channelLabel: "Loja física",
-        unitsSold: 128,
-        revenueLabel: formatCurrency(38_400),
-        statusLabel: "Maior giro da semana"
-      },
-      {
-        id: "product-top-2",
-        name: "Camisa Ranch Denim",
-        channelLabel: "E-commerce",
-        unitsSold: 112,
-        revenueLabel: formatCurrency(24_800),
-        statusLabel: "Alta procura online"
-      },
-      {
-        id: "product-top-3",
-        name: "Cinto Bronze Saddle",
-        channelLabel: "Loja física",
-        unitsSold: 96,
-        revenueLabel: formatCurrency(11_500),
-        statusLabel: "Boa conversão presencial"
-      },
-      {
-        id: "product-top-4",
-        name: "Jaqueta Outpost Terra",
-        channelLabel: "E-commerce",
-        unitsSold: 84,
-        revenueLabel: formatCurrency(29_900),
-        statusLabel: "Ticket premium"
-      },
-      {
-        id: "product-top-5",
-        name: "Chapeu Dust Trail",
-        channelLabel: "E-commerce",
-        unitsSold: 79,
-        revenueLabel: formatCurrency(9_200),
-        statusLabel: "Volume constante"
-      }
-    ],
-    lowProducts: [
-      {
-        id: "product-low-1",
-        name: "Colete Dry Mesa",
-        channelLabel: "Loja física",
-        unitsSold: 4,
-        revenueLabel: formatCurrency(860),
-        statusLabel: "Baixa rotação"
-      },
-      {
-        id: "product-low-2",
-        name: "Carteira Old Pine",
-        channelLabel: "E-commerce",
-        unitsSold: 6,
-        revenueLabel: formatCurrency(540),
-        statusLabel: "Precisa revisar exposição"
-      },
-      {
-        id: "product-low-3",
-        name: "Bandana Mesa Red",
-        channelLabel: "Loja física",
-        unitsSold: 8,
-        revenueLabel: formatCurrency(320),
-        statusLabel: "Sem tração"
-      },
-      {
-        id: "product-low-4",
-        name: "Bolsa Prairie Mini",
-        channelLabel: "E-commerce",
-        unitsSold: 9,
-        revenueLabel: formatCurrency(1_100),
-        statusLabel: "Conversão abaixo da média"
-      },
-      {
-        id: "product-low-5",
-        name: "Fivela Copper Sun",
-        channelLabel: "Loja física",
-        unitsSold: 11,
-        revenueLabel: formatCurrency(610),
-        statusLabel: "Baixo interesse"
-      }
-    ],
-    alerts: [
-      {
-        id: "alert-1",
-        title: "Fila acima do previsto",
-        message: "Pedidos aguardando separação subiram 14% na última hora.",
-        severity: "high"
-      },
-      {
-        id: "alert-2",
-        title: "Time Norte abaixo da meta",
-        message: "Equipe entregou 82% do planejado até agora.",
-        severity: "medium"
-      },
-      {
-        id: "alert-3",
-        title: "Meta de ticket em destaque",
-        message: "Ticket médio segue acima da referência diária.",
-        severity: "low"
-      }
-    ],
-    yearOverYear: [
-      {
-        id: "yoy-revenue",
-        label: "Faturamento anual",
-        currentValue: formatCurrency(revenue * 365 * 0.92),
-        previousValue: formatCurrency(revenue * 365 * 0.78),
-        deltaPercent: 17.9,
-        trend: "up"
-      },
-      {
-        id: "yoy-orders",
-        label: "Pedidos no período",
-        currentValue: (orders * 312).toLocaleString("pt-BR"),
-        previousValue: (Math.round(orders * 312 * 0.88)).toLocaleString("pt-BR"),
-        deltaPercent: 13.6,
-        trend: "up"
-      },
-      {
-        id: "yoy-ticket",
-        label: "Ticket médio",
-        currentValue: formatCurrency(avgTicket * 1.04),
-        previousValue: formatCurrency(avgTicket * 0.91),
-        deltaPercent: 14.3,
-        trend: "up"
-      },
-      {
-        id: "yoy-conversion",
-        label: "Taxa de conversão",
-        currentValue: `${conversion.toFixed(1)}%`,
-        previousValue: `${(conversion * 0.93).toFixed(1)}%`,
-        deltaPercent: 7.5,
-        trend: "up"
-      },
-      {
-        id: "yoy-employees",
-        label: "Colaboradores ativos",
-        currentValue: "42",
-        previousValue: "38",
-        deltaPercent: 10.5,
-        trend: "up"
-      },
-      {
-        id: "yoy-achievement",
-        label: "Meta atingida",
-        currentValue: formatPercentage((revenue / revenueTarget) * 100),
-        previousValue: formatPercentage((revenue / revenueTarget) * 100 * 0.87),
-        deltaPercent: 14.9,
-        trend: "up"
-      }
-    ]
+    metrics: GLOBAL_METRICS,
+    salesChannels: [PHYSICAL_CHANNEL, ECOMMERCE_CHANNEL],
+    trendPoints: PHYSICAL_CHANNEL.trendPoints,
+    channelLeaderboards: [PHYSICAL_LEADERS, ECOMMERCE_LEADERS],
+    topProducts: TOP_PRODUCTS,
+    lowProducts: [],
+    alerts: ALERTS,
+    yearOverYear: YOY_METRICS
   };
 }

@@ -11,7 +11,7 @@ export function Leaderboard({ leaders }: { leaders: LeaderboardEntry[] }) {
             <p className="leader-team">{leader.team}</p>
           </div>
           <div>
-            <p className="leader-value">{leader.displayValue}</p>
+            <p className="leader-value">{leader.revenueLabel}</p>
             <p className="leader-status">{leader.status}</p>
           </div>
         </article>

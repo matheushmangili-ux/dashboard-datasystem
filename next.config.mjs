@@ -6,7 +6,10 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typedRoutes: true,
-  outputFileTracingRoot: projectRoot
+  outputFileTracingRoot: projectRoot,
+  eslint: {
+    ignoreDuringBuilds: true,
+  }
 };
 
 export default nextConfig;

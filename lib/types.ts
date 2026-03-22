@@ -36,7 +36,12 @@ export interface LeaderboardEntry {
   rank: number;
   name: string;
   team: string;
-  displayValue: string;
+  revenueLabel: string;
+  salesCount: number;
+  ticketMedioLabel: string;
+  piecesPerTicket: number;
+  conversionRate: number;
+  goalAchievement: number;
   status: string;
 }
 
@@ -70,7 +75,10 @@ export interface SalesChannelSnapshot {
   health: SourceHealth;
   revenueLabel: string;
   ordersLabel: string;
+  ordersCount: number;
   averageTicketLabel: string;
+  piecesPerTicket: number;
+  conversionRate: number;
   deltaLabel: string;
   trendPoints: TrendPoint[];
 }
@@ -91,7 +99,6 @@ export interface DashboardSnapshot {
   metrics: MetricCard[];
   salesChannels: SalesChannelSnapshot[];
   trendPoints: TrendPoint[];
-  leaders: LeaderboardEntry[];
   channelLeaderboards: ChannelLeaderboard[];
   topProducts: ProductRankingEntry[];
   lowProducts: ProductRankingEntry[];

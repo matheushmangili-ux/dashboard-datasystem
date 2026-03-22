@@ -30,14 +30,14 @@ function normalizePayload(payload: unknown): DashboardSnapshot | null {
     candidate.summary &&
     Array.isArray(candidate.metrics) &&
     Array.isArray(candidate.trendPoints) &&
-    Array.isArray(candidate.leaders) &&
+    Array.isArray(candidate.channelLeaderboards) &&
     Array.isArray(candidate.alerts)
   ) {
     return {
       ...(candidate as Omit<DashboardSnapshot, "salesChannels">),
       salesChannels: Array.isArray(candidate.salesChannels)
         ? candidate.salesChannels
-        : buildMockSnapshot("api", "fallback").salesChannels
+        : buildMockSnapshot("api", "fallback", "Fallback payload").salesChannels
     };
   }
 

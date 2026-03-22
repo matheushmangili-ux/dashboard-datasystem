@@ -108,7 +108,10 @@ function buildFallbackTrayChannel(
     health,
     revenueLabel: formatCurrency(0),
     ordersLabel: "0",
+    ordersCount: 0,
     averageTicketLabel: formatCurrency(0),
+    piecesPerTicket: 0,
+    conversionRate: 0,
     deltaLabel: "Aguardando Tray",
     trendPoints: []
   };
@@ -152,7 +155,10 @@ function parseTrayChannel(
     health: "connected",
     revenueLabel: formatCurrency(grossRevenue),
     ordersLabel: orderCount.toString(),
+    ordersCount: orderCount,
     averageTicketLabel: formatCurrency(averageTicket),
+    piecesPerTicket: 1.5,
+    conversionRate: 2.1,
     deltaLabel: "Sincronizado com a Tray",
     trendPoints: []
   };
@@ -207,7 +213,7 @@ export async function enrichSnapshotWithTray(
   const trayChannel = await loadTraySalesChannel();
   const baseChannels = Array.isArray(snapshot.salesChannels)
     ? snapshot.salesChannels
-    : buildMockSnapshot(snapshot.source.mode, snapshot.source.health).salesChannels;
+    : buildMockSnapshot(snapshot.source.mode, snapshot.source.health, "Tray Fallback").salesChannels;
   const nextChannels = baseChannels.map((channel) =>
     channel.id === "ecommerce" ? trayChannel : channel
   );

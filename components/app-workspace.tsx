@@ -1,17 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { AdminWorkspace } from "@/components/admin-workspace";
-import { MotivationalToast } from "@/components/motivational-toast";
 import { RealtimeDashboard } from "@/components/realtime-dashboard";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { getPermissions } from "@/lib/auth/demo-users";
+import { Sidebar, type SidebarView } from "@/components/sidebar";
+import { CadastrosView } from "@/components/cadastros-view";
+import { IndicadoresView } from "@/components/indicadores-view";
+import { EcommerceView } from "@/components/ecommerce-view";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
-
-type WorkspaceView = "dashboard" | "admin";
 
 export function AppWorkspace({
   currentUser,
@@ -24,52 +23,42 @@ export function AppWorkspace({
   onSignOut: () => void;
   readiness: IntegrationReadiness;
 }) {
-  const permissions = useMemo(
-    () => getPermissions(currentUser.role),
-    [currentUser.role]
-  );
-  const canAccessAdmin = permissions.canViewConnectorStatus;
-  const [view, setView] = useState<WorkspaceView>("dashboard");
+  const [view, setView] = useState<SidebarView>("dashboard");
 
   return (
-    <div className="workspace-stack">
-      <MotivationalToast />
-      <section className="workspace-nav card">
-        <div>
-          <p className="section-eyebrow">Workspace</p>
-          <h2 className="status-value">Painel operacional</h2>
-        </div>
-
-        <div className="tab-row">
-          <button
-            className={`tab-button ${view === "dashboard" ? "active" : ""}`}
-            onClick={() => setView("dashboard")}
-            type="button"
-          >
-            Dashboard
-          </button>
-          {canAccessAdmin ? (
-            <button
-              className={`tab-button ${view === "admin" ? "active" : ""}`}
-              onClick={() => setView("admin")}
-              type="button"
+    <div className="min-h-screen bg-background flex">
+      <Sidebar currentView={view} onNavigate={setView} />
+      
+      <div className="flex-1 md:ml-[280px] overflow-x-hidden min-h-screen relative flex flex-col">
+        {view === "cadastros" ? (
+          <CadastrosView onNavigate={setView} />
+        ) : view === "indicadores" ? (
+          <IndicadoresView onNavigate={setView} snapshot={initialSnapshot} />
+        ) : view.startsWith("ecommerce-") ? (
+          <EcommerceView activeView={view as any} />
+        ) : view === "admin" ? (
+          <div className="p-6">
+            <button 
+              onClick={() => setView("dashboard")}
+              className="mb-8 px-4 py-2 bg-primary text-primary-foreground rounded hover:opacity-90 inline-flex items-center gap-2"
             >
-              Administração
+              &larr; Voltar para o Dashboard Operacional
             </button>
-          ) : null}
-          <ThemeToggle />
-        </div>
-      </section>
-
-      {view === "admin" && canAccessAdmin ? (
-        <AdminWorkspace currentUser={currentUser} readiness={readiness} />
-      ) : (
-        <RealtimeDashboard
-          currentUser={currentUser}
-          initialSnapshot={initialSnapshot}
-          onSignOut={onSignOut}
-        />
-      )}
+            <AdminWorkspace currentUser={currentUser} readiness={readiness} />
+          </div>
+        ) : (
+          <div className="flex-1">
+            {/* Outras telas (vendedores, metas) podem renderizar views especificas,
+                aqui deixaremos o RealtimeDashboard lidando com tudo provisoriamente. */}
+            <RealtimeDashboard
+              currentUser={currentUser}
+              initialSnapshot={initialSnapshot}
+              onSignOut={onSignOut}
+              forceActiveChannel={view === "ecommerce" ? "ecommerce" : view === "fisica" ? "physical" : undefined}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

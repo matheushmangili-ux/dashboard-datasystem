@@ -1,43 +1,23 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useTransition, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { signInAction, signOutAction } from "@/app/actions/auth";
 
 import { AppWorkspace } from "@/components/app-workspace";
-import { demoUsers } from "@/lib/auth/demo-users";
+import { HorseAnimation } from "@/components/animations"; // Added import
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
 
-const STORAGE_KEY = "pulse-dashboard-session";
-
-const LOGO_URL =
-  "https://images.tcdn.com.br/files/548537/themes/757/img/settings/logo.png?45076445528a6de8946fee0b2dd90ccc";
-
-function loadStoredUser() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-
-  if (!raw) {
-    return null;
-  }
-
-  const userId = raw.trim();
-  return demoUsers.find((user) => user.id === userId) ?? null;
-}
-
-function LoginScreen({
-  onSignIn
-}: {
-  onSignIn: (user: AuthUser) => void;
-}) {
+function LoginScreen() {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!login.trim() || !password.trim()) {
@@ -45,145 +25,134 @@ function LoginScreen({
       return;
     }
 
-    const matchedUser = demoUsers.find(
-      (user) =>
-        (user.name.toLowerCase() === login.trim().toLowerCase() ||
-          user.id === login.trim()) &&
-        user.pin === password.trim()
-    );
-
-    if (!matchedUser) {
-      setErrorMessage("Login ou senha inválidos.");
-      return;
-    }
-
-    setErrorMessage(null);
-    onSignIn(matchedUser);
+    startTransition(async () => {
+      const result = await signInAction(login, password);
+      if (!result.success) {
+        setErrorMessage(result.error ?? "Login falhou");
+        return;
+      }
+      setErrorMessage(null);
+      router.refresh();
+    });
   };
 
   return (
-    <main className="login-page">
-      <div className="login-container">
-        <div className="login-brand-panel">
-          <div className="login-brand-content">
-            <img
-              src={LOGO_URL}
-              alt="Texas Center"
-              className="login-logo"
-            />
-            <h1 className="login-welcome">
-              Seja bem-vindo ao
-              <br />
-              Texas Center Dashboard
-            </h1>
-            <p className="login-brand-copy">
-              Acompanhe os resultados da operação em tempo real.
-              Loja física e e-commerce em um só lugar.
-            </p>
-          </div>
-        </div>
+    <main className="min-h-screen bg-muted/30 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
+      {/* 8-Bit Horse vs Alien Easter Egg */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <HorseAnimation />
+      </div>
 
-        <div className="login-form-panel">
-          <article className="login-form-card">
-            <div className="login-form-header">
-              <img
-                src={LOGO_URL}
-                alt="Texas Center"
-                className="login-logo-small"
-              />
-              <p className="section-eyebrow">Acesso ao painel</p>
-              <h2 className="login-form-title">Entrar</h2>
+      <div className="relative z-10 w-full">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="flex justify-center">
+            <div className="w-16 h-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center text-3xl font-extrabold uppercase shadow-xl ring-4 ring-primary/10 tracking-tighter">
+              TC
+            </div>
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground font-heading tracking-tight">
+          Acesso ao Painel
+        </h2>
+        <p className="mt-2 text-center text-sm text-muted-foreground">
+          Acompanhe os resultados da operação em tempo real.
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-in fade-in zoom-in-95 duration-500">
+        <div className="bg-card py-8 px-4 shadow-xl sm:rounded-2xl border border-border sm:px-10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/30" />
+          
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-sm font-semibold text-foreground tracking-tight">
+                Usuário do Colaborador
+              </label>
+              <div className="mt-1.5">
+                <input
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={login}
+                  onChange={(e) => setLogin(e.target.value)}
+                  placeholder="Ex: Ana Silva"
+                  className="appearance-none block w-full px-4 py-2.5 border border-border rounded-lg shadow-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm bg-background transition-all"
+                />
+              </div>
             </div>
 
-            <form className="login-form" onSubmit={handleSubmit}>
-              <label className="field-block">
-                <span>Login</span>
-                <input
-                  className="field-input"
-                  onChange={(event) => setLogin(event.target.value)}
-                  placeholder="Digite seu login"
-                  type="text"
-                  value={login}
-                  autoComplete="username"
-                />
+            <div>
+              <label className="block text-sm font-semibold text-foreground tracking-tight">
+                Senha / PIN
               </label>
-
-              <label className="field-block">
-                <span>Senha</span>
+              <div className="mt-1.5">
                 <input
-                  className="field-input"
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Digite sua senha"
                   type="password"
-                  value={password}
                   autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Sua senha de acesso"
+                  className="appearance-none block w-full px-4 py-2.5 border border-border rounded-lg shadow-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm bg-background transition-all"
                 />
-              </label>
+              </div>
+            </div>
 
-              {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
+            {errorMessage && (
+              <div className="p-3 bg-destructive/10 text-destructive text-sm font-medium rounded-lg border border-destructive/20 text-center">
+                {errorMessage}
+              </div>
+            )}
 
-              <button className="primary-button login-button" type="submit">
-                Entrar
+            <div>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold tracking-wide text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+              >
+                {isPending ? "Validando..." : "Entrar"}
               </button>
-            </form>
+            </div>
+          </form>
 
-            <p className="login-hint">
-              Use o nome do colaborador como login e o PIN como senha.
-            </p>
-          </article>
-
-          <footer className="login-footer">
-            <span>Desenvolvido por: matheusmangili</span>
-          </footer>
+          <div className="mt-8 text-center text-xs font-mono text-muted-foreground pt-6 border-t border-border/50">
+            Texas Center Dashboard
+            <br />
+            Configuração de Teste
+          </div>
         </div>
       </div>
+      
+      </div> {/* Close relative wrapper */}
     </main>
   );
 }
 
 export function AccessShell({
   initialSnapshot,
-  readiness
+  readiness,
+  initialUser
 }: {
   initialSnapshot: DashboardSnapshot;
   readiness: IntegrationReadiness;
+  initialUser: AuthUser | null;
 }) {
-  const [currentUser, setCurrentUser] = useState<AuthUser | null | undefined>(
-    undefined
-  );
-
-  useEffect(() => {
-    setCurrentUser(loadStoredUser());
-  }, []);
-
-  const handleSignIn = (user: AuthUser) => {
-    window.localStorage.setItem(STORAGE_KEY, user.id);
-    setCurrentUser(user);
-  };
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSignOut = () => {
-    window.localStorage.removeItem(STORAGE_KEY);
-    setCurrentUser(null);
+    startTransition(async () => {
+      await signOutAction();
+      router.refresh();
+    });
   };
 
-  if (currentUser === undefined) {
-    return (
-      <main className="login-page">
-        <div className="login-loading">
-          <img src={LOGO_URL} alt="Texas Center" className="login-logo" />
-          <p>Carregando...</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!currentUser) {
-    return <LoginScreen onSignIn={handleSignIn} />;
+  if (!initialUser) {
+    return <LoginScreen />;
   }
 
   return (
     <AppWorkspace
-      currentUser={currentUser}
+      currentUser={initialUser}
       initialSnapshot={initialSnapshot}
       onSignOut={handleSignOut}
       readiness={readiness}

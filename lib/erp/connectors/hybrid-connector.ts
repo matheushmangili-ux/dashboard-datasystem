@@ -54,10 +54,7 @@ function mergeSnapshots(
       databaseConnected && databaseSnapshot.trendPoints.length > 0
         ? databaseSnapshot.trendPoints
         : apiSnapshot.trendPoints,
-    leaders:
-      apiConnected && apiSnapshot.leaders.length > 0
-        ? apiSnapshot.leaders
-        : databaseSnapshot.leaders,
+
     channelLeaderboards:
       apiConnected && apiSnapshot.channelLeaderboards.length > 0
         ? apiSnapshot.channelLeaderboards

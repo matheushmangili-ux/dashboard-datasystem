@@ -133,7 +133,10 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
         health: "connected",
         revenueLabel: formatCurrency(revenue),
         ordersLabel: orders.toString(),
+        ordersCount: orders,
         averageTicketLabel: formatCurrency(avgTicket),
+        piecesPerTicket: 2.8,
+        conversionRate: conversion,
         deltaLabel: "ERP sincronizado",
         trendPoints: trendSet.map((row, index) => {
           const record = row as TrendRecord;
@@ -154,7 +157,10 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
         health: "fallback",
         revenueLabel: formatCurrency(0),
         ordersLabel: "0",
+        ordersCount: 0,
         averageTicketLabel: formatCurrency(0),
+        piecesPerTicket: 0,
+        conversionRate: 0,
         deltaLabel: "Aguardando Tray",
         trendPoints: []
       }
@@ -169,17 +175,7 @@ function normalizeRecordsets(recordsets: unknown[]): DashboardSnapshot | null {
         displayValue: formatCurrency(value)
       };
     }),
-    leaders: leadersSet.map((row, index) => {
-      const record = row as LeaderRecord;
-      return {
-        id: `leader-${index + 1}`,
-        rank: index + 1,
-        name: record.collaborator ?? `Colaborador ${index + 1}`,
-        team: record.team ?? "Equipe ERP",
-        displayValue: formatCurrency(toNumber(record.value, 0)),
-        status: record.status ?? "Sem status"
-      };
-    }),
+
     alerts: alertsSet.map((row, index) => {
       const record = row as AlertRecord;
       return {

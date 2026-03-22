@@ -1,6 +1,20 @@
 import type { AccessPermissions, AuthUser, UserRole } from "@/lib/auth/types";
 
+export const demoCredentials: Record<string, string> = {
+  "admin": "admin",
+  "ana.silva": "1234",
+  "roberto.dias": "5678",
+};
+
 export const demoUsers: AuthUser[] = [
+  {
+    id: "uid-admin",
+    name: "Administrador Global",
+    role: "manager",
+    title: "Diretor Geral",
+    team: "Matriz",
+    pin: "admin"
+  },
   {
     id: "user-1",
     name: "Ana Ribeiro",

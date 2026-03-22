@@ -3,11 +3,7 @@ import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import { getActiveConnector, getAllConnectors, getConfiguredMode } from "@/lib/erp/registry";
 import { enrichSnapshotWithTray, getTrayConnectorStatus } from "@/lib/tray/service";
 import type { DashboardSnapshot } from "@/lib/types";
-
-const CACHE_TTL_MS = 8_000;
-
-let cachedSnapshot: DashboardSnapshot | null = null;
-let cacheTimestamp = 0;
+import { unstable_cache } from "next/cache";
 
 function ensureDashboardShape(snapshot: DashboardSnapshot): DashboardSnapshot {
   const fallback = buildMockSnapshot(
@@ -36,21 +32,15 @@ function ensureDashboardShape(snapshot: DashboardSnapshot): DashboardSnapshot {
   };
 }
 
-export async function loadDashboardSnapshot() {
-  const now = Date.now();
-
-  if (cachedSnapshot && now - cacheTimestamp < CACHE_TTL_MS) {
-    return cachedSnapshot;
-  }
-
-  const snapshot = await getActiveConnector().loadSnapshot();
-  const enriched = await enrichSnapshotWithTray(ensureDashboardShape(snapshot));
-
-  cachedSnapshot = enriched;
-  cacheTimestamp = now;
-
-  return enriched;
-}
+export const loadDashboardSnapshot = unstable_cache(
+  async () => {
+    const snapshot = await getActiveConnector().loadSnapshot();
+    const enriched = await enrichSnapshotWithTray(ensureDashboardShape(snapshot));
+    return enriched;
+  },
+  ["dashboard-snapshot"],
+  { revalidate: 8, tags: ["dashboard"] }
+);
 
 export function getIntegrationReadiness(): IntegrationReadiness {
   const activeConnector = getActiveConnector();
