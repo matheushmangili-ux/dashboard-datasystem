@@ -8,6 +8,7 @@ import { KpiCard } from "@/components/kpi-card";
 import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
 import { HorseAnimation } from "@/components/animations";
+import { DashboardClock } from "@/components/dashboard-clock";
 import { getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
 import type { DashboardSnapshot, SalesChannelId } from "@/lib/types";
@@ -131,7 +132,7 @@ export function RealtimeDashboard({
             Sair
           </button>
         </div>
-      </section>
+      </header>
 
       {/* DASHBOARD CONTENT */}
       <main className="flex-1 max-w-[1600px] w-full mx-auto p-6 space-y-6">
@@ -220,7 +221,7 @@ export function RealtimeDashboard({
             </div>
             
             <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-              {activeLeaderboard.map((leader) => (
+              {activeLeaderboard.leaders.map((leader) => (
                 <div key={leader.id} className="flex flex-col gap-2 p-3 rounded-xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
