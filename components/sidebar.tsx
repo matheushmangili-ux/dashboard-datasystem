@@ -31,18 +31,18 @@ type MenuSection = {
 
 /* ----- Western humor quotes for sidebar footer ----- */
 const WESTERN_QUOTES = [
-  "O varejo e como o velho oeste: quem puxa primeiro, vende mais.",
-  "Nao existe meta inatingivel, existe cowboy preguicoso.",
-  "Vender e como lacar: mire no cliente certo.",
-  "No velho oeste do varejo, o estoque vazio e o pior bandido.",
+  "O varejo é como o velho oeste: quem puxa primeiro, vende mais.",
+  "Não existe meta inatingível, existe cowboy preguiçoso.",
+  "Vender é como laçar: mire no cliente certo.",
+  "No velho oeste do varejo, o estoque vazio é o pior bandido.",
   "Yeehaw! Mais um dia pra bater a meta, parceiro!",
-  "Cowboy que nao cavalga, nao vende.",
-  "O deserto do varejo tem oasis: se chama conversao.",
-  "Ticket medio baixo? Hora de selar o cavalo!",
+  "Cowboy que não cavalga, não vende.",
+  "O deserto do varejo tem oásis: se chama conversão.",
+  "Ticket médio baixo? Hora de selar o cavalo!",
   "Como dizem no oeste: quem chega primeiro, vende melhor.",
   "A poeira baixa, mas o faturamento tem que subir!",
-  "Parceiro, meta batida e como por-do-sol: bonito demais!",
-  "No varejo, cada cliente e um duelo. Nao vacile!",
+  "Parceiro, meta batida é como pôr-do-sol: bonito demais!",
+  "No varejo, cada cliente é um duelo. Não vacile!",
 ];
 
 const MENU_SECTIONS: MenuSection[] = [
@@ -50,15 +50,15 @@ const MENU_SECTIONS: MenuSection[] = [
     title: "Operacional",
     items: [
       { id: "dashboard", label: "Painel Geral", icon: LayoutDashboard, tooltip: "Onde o dinheiro galopa" },
-      { id: "vendedores", label: "Vendedores", icon: Users, tooltip: "Os cowboys da operacao" },
+      { id: "vendedores", label: "Vendedores", icon: Users, tooltip: "Os cowboys da operação" },
       { id: "metas", label: "Metas", icon: Target, tooltip: "Mire bem, parceiro!" },
-      { id: "indicadores", label: "Indicadores", icon: PieChart, tooltip: "Os numeros nao mentem, cowboy" },
+      { id: "indicadores", label: "Indicadores", icon: PieChart, tooltip: "Os números não mentem, cowboy" },
     ],
   },
   {
     title: "Canais de Venda",
     items: [
-      { id: "fisica", label: "Loja Fisica", icon: Store, tooltip: "O saloon principal" },
+      { id: "fisica", label: "Loja Física", icon: Store, tooltip: "O saloon principal" },
       { 
         id: "ecommerce", 
         label: "E-commerce", 
@@ -68,19 +68,19 @@ const MENU_SECTIONS: MenuSection[] = [
         badgeType: "count",
         subItems: [
           { id: "ecommerce-resultados", label: "Resultados", icon: Activity, tooltip: "Faturamento do rancho digital" },
-          { id: "ecommerce-trafego", label: "Trafego", icon: Users, tooltip: "Quantos cavaleiros passaram" },
+          { id: "ecommerce-trafego", label: "Tráfego", icon: Users, tooltip: "Quantos cavaleiros passaram" },
           { id: "ecommerce-seo", label: "Palavras-chave", icon: TextSearch, tooltip: "O mapa do tesouro" },
           { id: "ecommerce-atendimento", label: "Atendimento", icon: MessageSquare, tooltip: "Pronto-socorro do cliente" },
           { id: "ecommerce-clientes", label: "Clientes", icon: Briefcase, tooltip: "Novos vs velhos parceiros" },
-          { id: "ecommerce-produtos", label: "Produtos", icon: Package, tooltip: "O inventario do armazem" },
+          { id: "ecommerce-produtos", label: "Produtos", icon: Package, tooltip: "O inventário do armazém" },
         ]
       },
     ],
   },
   {
-    title: "Gestao",
+    title: "Gestão",
     items: [
-      { id: "cadastros", label: "Cadastros", icon: Settings, tooltip: "Onde tudo comeca, parceiro" },
+      { id: "cadastros", label: "Cadastros", icon: Settings, tooltip: "Onde tudo começa, parceiro" },
     ],
   },
 ];
@@ -130,10 +130,12 @@ function MenuBadge({ text, type }: { text: string; type: "alert" | "new" | "coun
 
 export function Sidebar({ 
   currentView, 
-  onNavigate 
+  onNavigate,
+  todayRevenue,
 }: { 
   currentView: string; 
-  onNavigate: (view: SidebarView) => void 
+  onNavigate: (view: SidebarView) => void;
+  todayRevenue?: string;
 }) {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({ ecommerce: false });
   const [quoteIndex, setQuoteIndex] = useState(0);
@@ -182,7 +184,7 @@ export function Sidebar({
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Hoje</span>
           </div>
-          <p className="text-lg font-bold font-heading text-foreground">R$ 102.500</p>
+          <p className="text-lg font-bold font-heading text-foreground">{todayRevenue ?? "--"}</p>
           <div className="flex items-center gap-3 mt-1.5">
             <StatusDot status="online" label="Data System" />
             <StatusDot status="online" label="Tray" />
