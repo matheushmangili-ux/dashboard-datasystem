@@ -46,7 +46,6 @@ export function DashboardClock() {
 
   return (
     <div className="clock-card">
-      <p className="status-label">Horário do painel</p>
       <p className="clock-time">{timeLabel}</p>
       <p className="clock-date">{dateLabel}</p>
     </div>

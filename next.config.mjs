@@ -6,7 +6,15 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typedRoutes: true,
-  outputFileTracingRoot: projectRoot
+  outputFileTracingRoot: projectRoot,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.tcdn.com.br"
+      }
+    ]
+  }
 };
 
 export default nextConfig;

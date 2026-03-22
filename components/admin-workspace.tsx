@@ -23,24 +23,19 @@ export function AdminWorkspace({
       <article className="card admin-panel admin-overview">
         <div className="panel-header">
           <div>
-            <p className="section-eyebrow">Administração</p>
-            <h2 className="section-title">Operação pronta para crescer</h2>
+            <p className="section-eyebrow">Administracao</p>
+            <h2 className="section-title">Visao geral</h2>
           </div>
           <span className="role-badge">{getRoleLabel(currentUser.role)}</span>
         </div>
 
-        <p className="section-copy">
-          Esta área organiza usuários, equipes, permissões e prontidão da
-          integração antes mesmo do acesso oficial ao ERP.
-        </p>
-
         <div className="admin-stat-grid">
           <div className="admin-stat">
-            <span>Perfis de gestão</span>
+            <span>Perfis de gestao</span>
             <strong>{counts.managers}</strong>
           </div>
           <div className="admin-stat">
-            <span>Perfis de supervisão</span>
+            <span>Perfis de supervisao</span>
             <strong>{counts.supervisors}</strong>
           </div>
           <div className="admin-stat">
@@ -48,7 +43,7 @@ export function AdminWorkspace({
             <strong>{counts.operators}</strong>
           </div>
           <div className="admin-stat">
-            <span>Modo de integração</span>
+            <span>Modo de integracao</span>
             <strong>{readiness.activeMode}</strong>
           </div>
         </div>
@@ -75,7 +70,7 @@ export function AdminWorkspace({
               <p className="team-focus">{team.focus}</p>
               <div className="team-meta">
                 <span>{team.activePeople} pessoas ativas</span>
-                <span>{team.completion >= 100 ? "Acima da meta" : "Em evolução"}</span>
+                <span>{team.completion >= 100 ? "Acima da meta" : "Em evolucao"}</span>
               </div>
             </div>
           ))}
@@ -85,7 +80,7 @@ export function AdminWorkspace({
       <article className="card admin-panel">
         <div className="panel-header">
           <div>
-            <p className="section-eyebrow">Permissões</p>
+            <p className="section-eyebrow">Permissoes</p>
             <h2 className="section-title">Regra por papel</h2>
           </div>
         </div>
@@ -111,8 +106,8 @@ export function AdminWorkspace({
       <article className="card admin-panel">
         <div className="panel-header">
           <div>
-            <p className="section-eyebrow">Integração</p>
-            <h2 className="section-title">Prontidão técnica</h2>
+            <p className="section-eyebrow">Integracao</p>
+            <h2 className="section-title">Prontidao tecnica</h2>
           </div>
         </div>
 
@@ -143,7 +138,7 @@ export function AdminWorkspace({
       <article className="card admin-panel">
         <div className="panel-header">
           <div>
-            <p className="section-eyebrow">Implantação</p>
+            <p className="section-eyebrow">Implantacao</p>
             <h2 className="section-title">Checklist de rollout</h2>
           </div>
         </div>

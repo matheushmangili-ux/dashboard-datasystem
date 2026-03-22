@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { AlertList } from "@/components/alert-list";
 import { DashboardClock } from "@/components/dashboard-clock";
 import { EcommerceField } from "@/components/ecommerce-field";
+import { GoalGauge } from "@/components/goal-gauge";
 import { KpiCard } from "@/components/kpi-card";
 import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
@@ -111,6 +112,17 @@ function parseDeltaFromLabel(label: string) {
   }
 
   return parseFloat(match[1].replace(",", "."));
+}
+
+function calculateAchievementPercent(points: TrendPoint[]) {
+  const totalValue = points.reduce((sum, point) => sum + point.value, 0);
+  const totalTarget = points.reduce((sum, point) => sum + point.target, 0);
+
+  if (!totalTarget) {
+    return 0;
+  }
+
+  return (totalValue / totalTarget) * 100;
 }
 
 function buildChannelMetrics(channel: SalesChannelSnapshot): MetricCard[] {
@@ -268,10 +280,10 @@ function ChannelProductsList({
 
 function PhysicalQuickMenu({ channel }: { channel: SalesChannelSnapshot }) {
   return (
-    <section className="card physical-ops-card">
+    <section className="physical-ops-card">
       <div className="panel-header">
         <div>
-          <p className="section-eyebrow">Leitura da operacao</p>
+          <p className="section-eyebrow">Operacao</p>
           <h2 className="section-title">Atalhos do turno</h2>
         </div>
         <span className={`connector-health ${channel.health}`}>{channel.health}</span>
@@ -280,19 +292,19 @@ function PhysicalQuickMenu({ channel }: { channel: SalesChannelSnapshot }) {
       <div className="physical-ops-grid">
         <div className="physical-ops-item">
           <strong>Meta e ritmo</strong>
-          <span>Meta do dia, projecao e pulso da equipe em destaque.</span>
+          <span>Projecao e pulso da equipe</span>
         </div>
         <div className="physical-ops-item">
           <strong>Equipe</strong>
-          <span>Diretoria, lideranca e operacao acessam profundidades diferentes.</span>
+          <span>Desempenho por nivel</span>
         </div>
         <div className="physical-ops-item">
           <strong>Produtos</strong>
-          <span>Mais vendidos e baixo giro ficam em uma trilha propria.</span>
+          <span>Mais vendidos e baixo giro</span>
         </div>
         <div className="physical-ops-item">
           <strong>Alertas</strong>
-          <span>Fila de atencao prioriza o que merece acao no turno.</span>
+          <span>Fila de atencao do turno</span>
         </div>
       </div>
     </section>
@@ -310,8 +322,8 @@ function InsightBarsCard({
 
   return (
     <div className="leaders-card card">
-      <p className="section-eyebrow">Leitura rapida</p>
-      <h2 className="section-title">Graficos faceis de ler</h2>
+      <p className="section-eyebrow">Metricas</p>
+      <h2 className="section-title">Indicadores do canal</h2>
       <div className="insight-bar-list">
         {insightBars.map((item) => (
           <div className="insight-bar-item" key={item.id}>
@@ -337,11 +349,11 @@ function PhysicalSectionNav({
   onChange: (section: PhysicalSectionId) => void;
 }) {
   return (
-    <section className="card physical-section-nav">
+    <section className="physical-section-nav">
       <div className="panel-header">
         <div>
-          <p className="section-eyebrow">Mapa da loja fisica</p>
-          <h2 className="section-title">Menus e submenus mais intuitivos</h2>
+          <p className="section-eyebrow">Navegacao</p>
+          <h2 className="section-title">Loja fisica</h2>
         </div>
       </div>
 
@@ -369,7 +381,7 @@ function AlertsCard({ alerts }: { alerts: AlertItem[] }) {
   return (
     <div className="alerts-card card">
       <p className="section-eyebrow">Alertas</p>
-      <h2 className="section-title">Pontos que pedem atencao</h2>
+      <h2 className="section-title">Atencao necessaria</h2>
       <AlertList alerts={alerts} />
     </div>
   );
@@ -385,11 +397,8 @@ function AnalyticsSection({
   return (
     <section className="section-grid channel-analytics-grid">
       <div className="chart-card card">
-        <p className="section-eyebrow">Grafico principal</p>
-        <h2 className="section-title">Desempenho do canal</h2>
-        <p className="section-copy">
-          Um grafico direto para comparar a entrega ao longo do dia com a meta.
-        </p>
+        <p className="section-eyebrow">Desempenho</p>
+        <h2 className="section-title">Realizado vs Meta</h2>
         <TrendChart points={trendPoints} />
       </div>
 
@@ -483,6 +492,11 @@ export function RealtimeDashboard({
     [snapshot.generatedAt]
   );
 
+  const achievementPercent = useMemo(
+    () => calculateAchievementPercent(activeTrendPoints),
+    [activeTrendPoints]
+  );
+
   const activeMetrics = useMemo(() => {
     if (!activeChannel) {
       return [];
@@ -525,12 +539,7 @@ export function RealtimeDashboard({
   const heroTitle =
     activeChannelId === "physical"
       ? activePhysicalConfig.heroTitle
-      : "E-commerce com leitura propria";
-
-  const heroCopy =
-    activeChannelId === "physical"
-      ? activePhysicalConfig.heroCopy
-      : "Uma pagina propria para o digital, com atalhos de e-commerce, visao de produtos e leitura facil do que mais importa.";
+      : "E-commerce";
 
   const heroHighlights =
     activeChannelId === "physical"
@@ -546,13 +555,10 @@ export function RealtimeDashboard({
 
   return (
     <main className="shell">
-      <section className="user-strip card">
+      <section className="user-strip">
         <div>
-          <p className="status-label">Sessao ativa</p>
+          <p className="status-label">{getRoleLabel(currentUser.role)}</p>
           <h2 className="status-value">{currentUser.name}</h2>
-          <p className="section-copy">
-            {currentUser.title} | {currentUser.team}
-          </p>
         </div>
 
         <div className="user-actions">
@@ -573,24 +579,16 @@ export function RealtimeDashboard({
             </button>
           </div>
           <DashboardClock />
-          <span className="role-badge">{getRoleLabel(currentUser.role)}</span>
-          <span className="role-badge">
-            {permissions.scope === "company" ? "Escopo empresa" : "Escopo equipe"}
-          </span>
           <button className="secondary-button" onClick={onSignOut} type="button">
-            Trocar perfil
+            Sair
           </button>
         </div>
       </section>
 
-      <section className="card channel-page-hero">
+      <section className="channel-page-hero card">
         <div className="channel-page-copy">
-          <p className="section-eyebrow">
-            {activeChannel.label}
-            {activeChannelId === "physical" ? ` | ${activePhysicalConfig.eyebrow}` : ""}
-          </p>
+          <p className="section-eyebrow">{activeChannel.label}</p>
           <h1 className="channel-page-title">{heroTitle}</h1>
-          <p className="section-copy">{heroCopy}</p>
           <div className="channel-menu-strip">
             {heroHighlights.map((item) => (
               <span className="channel-menu-chip" key={item}>
@@ -607,11 +605,53 @@ export function RealtimeDashboard({
             </span>
             <span className="connector-chip">{activeChannel.sourceLabel}</span>
           </div>
-          <p className="section-copy">{activeChannel.description}</p>
-          <p className="channel-page-updated">{`Ultima atualizacao: ${lastUpdated}`}</p>
+          <p className="channel-page-updated">{`Atualizado: ${lastUpdated}`}</p>
           {isPending ? <span className="loading-badge">Sincronizando</span> : null}
-          {errorMessage ? <p className="section-copy">{errorMessage}</p> : null}
+          {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
         </aside>
+      </section>
+
+      <section className="section-grid goal-gauge-grid" aria-label="Pulso do canal">
+        <GoalGauge
+          percent={achievementPercent}
+          label="Atingimento da meta diária"
+          value={activeChannel.revenueLabel}
+        />
+
+        <article className="card goal-gauge-support animate-tech">
+          <div className="goal-gauge-support-top">
+            <div>
+              <p className="section-eyebrow">Pulso do canal</p>
+              <h2 className="section-title">Leitura rápida da operação</h2>
+            </div>
+            <span className={`connector-health ${activeChannel.health}`}>
+              {activeChannel.health}
+            </span>
+          </div>
+
+          <div className="goal-gauge-support-grid">
+            <div className="goal-gauge-support-item">
+              <span>Canal</span>
+              <strong>{activeChannel.label}</strong>
+            </div>
+            <div className="goal-gauge-support-item">
+              <span>Última atualização</span>
+              <strong>{lastUpdated}</strong>
+            </div>
+            <div className="goal-gauge-support-item">
+              <span>Pedidos</span>
+              <strong>{activeChannel.ordersLabel}</strong>
+            </div>
+            <div className="goal-gauge-support-item">
+              <span>Ticket médio</span>
+              <strong>{activeChannel.averageTicketLabel}</strong>
+            </div>
+          </div>
+
+          <p className="section-copy goal-gauge-support-note">
+            {activeChannel.description}
+          </p>
+        </article>
       </section>
 
       <section className="section-grid channel-metric-grid" aria-label="Indicadores do canal">

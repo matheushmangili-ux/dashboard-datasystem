@@ -1,11 +1,11 @@
 import type { MetricCard } from "@/lib/types";
 
 function getMetricTone(delta: number) {
-  if (delta >= 0) {
+  if (delta > 0) {
     return "metric-tone-positive";
   }
 
-  if (delta > -5) {
+  if (delta === 0 || delta > -5) {
     return "metric-tone-neutral";
   }
 
@@ -20,7 +20,7 @@ export function KpiCard({
   loading?: boolean;
 }) {
   return (
-    <article className={`kpi-card card ${loading ? "is-loading" : ""}`}>
+    <article className={`kpi-card card animate-tech ${loading ? "is-loading" : ""}`}>
       <p className="kpi-label">{metric.label}</p>
       <p className="kpi-value">{metric.value}</p>
       <div className="kpi-footer">

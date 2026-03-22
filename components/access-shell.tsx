@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { AppWorkspace } from "@/components/app-workspace";
@@ -53,7 +54,7 @@ function LoginScreen({
     );
 
     if (!matchedUser) {
-      setErrorMessage("Login ou senha inválidos.");
+      setErrorMessage("Login ou senha invalidos.");
       return;
     }
 
@@ -66,10 +67,13 @@ function LoginScreen({
       <div className="login-container">
         <div className="login-brand-panel">
           <div className="login-brand-content">
-            <img
+            <Image
               src={LOGO_URL}
               alt="Texas Center"
               className="login-logo"
+              width={220}
+              height={96}
+              priority
             />
             <h1 className="login-welcome">
               Seja bem-vindo ao
@@ -77,8 +81,8 @@ function LoginScreen({
               Texas Center Dashboard
             </h1>
             <p className="login-brand-copy">
-              Acompanhe os resultados da operação em tempo real.
-              Loja física e e-commerce em um só lugar.
+              Acompanhe os resultados da operacao em tempo real.
+              Loja fisica e e-commerce em um so lugar.
             </p>
           </div>
         </div>
@@ -86,10 +90,13 @@ function LoginScreen({
         <div className="login-form-panel">
           <article className="login-form-card">
             <div className="login-form-header">
-              <img
+              <Image
                 src={LOGO_URL}
                 alt="Texas Center"
                 className="login-logo-small"
+                width={120}
+                height={52}
+                priority
               />
               <p className="section-eyebrow">Acesso ao painel</p>
               <h2 className="login-form-title">Entrar</h2>
@@ -170,7 +177,14 @@ export function AccessShell({
     return (
       <main className="login-page">
         <div className="login-loading">
-          <img src={LOGO_URL} alt="Texas Center" className="login-logo" />
+          <Image
+            src={LOGO_URL}
+            alt="Texas Center"
+            className="login-logo"
+            width={220}
+            height={96}
+            priority
+          />
           <p>Carregando...</p>
         </div>
       </main>

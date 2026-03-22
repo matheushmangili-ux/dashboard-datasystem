@@ -716,12 +716,8 @@ export function SalesTeamPanel({ forcedView }: { forcedView?: TeamPanelView }) {
     <section className="card team-panel">
       <div className="team-panel-header">
         <div>
-          <p className="section-eyebrow">Loja fisica - equipe</p>
-          <h2 className="section-title">Painel de desempenho mais limpo</h2>
-          <p className="section-copy">
-            A visao principal prioriza poucos sinais executivos. O detalhe fica
-            separado por setor e por vendedor para reduzir ruido.
-          </p>
+          <p className="section-eyebrow">Equipe de vendas</p>
+          <h2 className="section-title">Desempenho da equipe</h2>
         </div>
 
         <div className="team-panel-meta">

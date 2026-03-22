@@ -34,11 +34,8 @@ export function AppWorkspace({
   return (
     <div className="workspace-stack">
       <MotivationalToast />
-      <section className="workspace-nav card">
-        <div>
-          <p className="section-eyebrow">Workspace</p>
-          <h2 className="status-value">Painel operacional</h2>
-        </div>
+      <section className="workspace-nav">
+        <h2 className="status-value">Pulse Dashboard</h2>
 
         <div className="tab-row">
           <button
@@ -54,7 +51,7 @@ export function AppWorkspace({
               onClick={() => setView("admin")}
               type="button"
             >
-              Administração
+              Administracao
             </button>
           ) : null}
           <ThemeToggle />
