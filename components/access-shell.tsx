@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { signInAction, signOutAction } from "@/app/actions/auth";
 
 import { AppWorkspace } from "@/components/app-workspace";
-import { HorseAnimation } from "@/components/animations"; // Added import
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
@@ -38,10 +37,6 @@ function LoginScreen() {
 
   return (
     <main className="min-h-screen bg-muted/30 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden">
-      {/* 8-Bit Horse vs Alien Easter Egg */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <HorseAnimation />
-      </div>
 
       <div className="relative z-10 w-full">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">

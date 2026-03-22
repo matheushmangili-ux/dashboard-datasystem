@@ -7,7 +7,7 @@ import { LogOut, TrendingUp, Trophy, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/kpi-card";
 import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
-import { HorseAnimation } from "@/components/animations";
+import { DashboardAnimation } from "@/components/animations";
 import { DashboardClock } from "@/components/dashboard-clock";
 import { getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
@@ -127,10 +127,6 @@ export function RealtimeDashboard({
               <LogOut className="w-5 h-5" />
             </button>
           </div>
-          <DashboardClock />
-          <button className="secondary-button" onClick={onSignOut} type="button">
-            Sair
-          </button>
         </div>
       </header>
 
@@ -313,9 +309,14 @@ export function RealtimeDashboard({
         </div>
       </main>
 
-      {/* EASTER EGG: HORSE VS ALIEN */}
+      {/* FOOTER CLOCK */}
+      <footer className="w-full text-center py-6 border-t border-border mt-auto bg-background z-10 relative">
+        <DashboardClock />
+      </footer>
+
+      {/* EASTER EGG: BOTTOM ANIMATION */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <HorseAnimation />
+        <DashboardAnimation />
       </div>
     </div>
   );

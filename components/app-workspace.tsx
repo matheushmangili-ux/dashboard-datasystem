@@ -8,6 +8,7 @@ import { Sidebar, type SidebarView } from "@/components/sidebar";
 import { CadastrosView } from "@/components/cadastros-view";
 import { IndicadoresView } from "@/components/indicadores-view";
 import { EcommerceView } from "@/components/ecommerce-view";
+import { FisicaView } from "@/components/fisica-view";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
@@ -46,6 +47,8 @@ export function AppWorkspace({
             </button>
             <AdminWorkspace currentUser={currentUser} readiness={readiness} />
           </div>
+        ) : view === "fisica" ? (
+          <FisicaView />
         ) : (
           <div className="flex-1">
             {/* Outras telas (vendedores, metas) podem renderizar views especificas,
@@ -54,7 +57,7 @@ export function AppWorkspace({
               currentUser={currentUser}
               initialSnapshot={initialSnapshot}
               onSignOut={onSignOut}
-              forceActiveChannel={view === "ecommerce" ? "ecommerce" : view === "fisica" ? "physical" : undefined}
+              forceActiveChannel={undefined}
             />
           </div>
         )}
