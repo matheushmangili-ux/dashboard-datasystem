@@ -28,7 +28,7 @@ export function AppWorkspace({
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar currentView={view} onNavigate={setView} />
+      <Sidebar currentView={view} onNavigate={setView} todayRevenue={initialSnapshot.salesChannels[0]?.revenueLabel} />
       
       <div className="flex-1 md:ml-[280px] overflow-x-hidden min-h-screen relative flex flex-col">
         {view === "cadastros" ? (
