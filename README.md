@@ -1,102 +1,71 @@
-# Pulse ERP Dashboard
+# Pulse ERP Dashboard - v2.0 Executive Premium 🚀
 
-MVP de painel em tempo real para colaboradores acompanharem resultados operacionais do ERP Data System.
+MVP de painel em tempo real para colaboradores acompanharem resultados operacionais do ERP Data System integrados ao E-Commerce Tray, agora com uma interface Premium focada em Liderança Executiva.
 
-## O que ja esta pronto
+## 🌟 Versão Atual: v2.0 - Executive Premium UI & Retro Animations
+*Principais atualizações e funcionalidades entregues nesta versão:*
 
-- Dashboard web responsivo com visual focado em operacao
-- Atualizacao automatica via polling em `/api/dashboard`
-- Camada de integracao com quatro modos: `mock`, `api`, `database` e `hybrid`
-- Estrutura pronta para metas, realizado, ranking e alertas
-- Camada de acesso demo com perfis e permissao visual por papel
-- Area administrativa demo com equipes, permissoes e prontidao de integracao
-- Contrato de dados documentado para API e banco
-- Registro de conectores para deixar a integracao futura plugavel
-- Rota de diagnostico em `/api/integration`
-- Resumo interno da Tray em `/api/tray/summary`
+- **Design Premium ("Glassmorphism"):** Interface totalmente refeita em Dark Mode, desenhada para clareza em monitores de grande formato e reuniões gerenciais, transmitindo credibilidade e sofisticação.
+- **Animações Retro (Gameboy Edition):** Animações contínuas de fundo com ET/UFO e um Cavalo operando via Pixel Art 100% SVG in-line (sem uso de GIFs externos), garantindo performance e uma identidade visual gamer 8-bits nas cores do clássico Gameboy.
+- **Acesso Demo Centralizado:** Fluxo de login polido para uso de demonstração rápida (Credenciais padrão da v2.0: **`admin` / `admin`**).
+- **Dual-Channel Dashboard:** Visualização separada em abas de "Loja Física (Data System)" e "E-commerce (Tray)", cada uma possuindo seu próprio ranking, meta, e gráfico de tendência.
+- **Deploy Otimizado (Vercel Ready):** Refatoração rigorosa em Typescript para aprovação em builds rigorosos e deploy de produção em um clique via Vercel.
 
-## Stack escolhida
+---
 
-- Next.js + TypeScript
-- React
-- SQL Server via pacote `mssql`
+## 🛠 Camada de Dados e Integrações
 
-## Como rodar
+- **Atualização Automática:** Polling em `/api/dashboard`
+- **Quatro Modos de Operação do ERP:** `mock`, `api`, `database` e `hybrid`
+- Estrutura pronta para cruzar metas, realizado diário, ranking de vendedores e painel de alertas unificados.
+- Registro de conectores com arquitetura limpa para deixar a integração futura plugável.
+- Rota de diagnóstico técnico em `/api/integration`.
+- Mock preparado com espelho resumido de dados da Tray em `/api/tray/summary`.
+
+## ⚙️ Stack Tecnológica
+
+- **Frontend:** Next.js + React + Tailwind CSS + Lucide Icons + Recharts
+- **Linguagem:** TypeScript
+- **Integração de BD:** SQL Server via pacote `mssql`
+- **Deploy Recomendado:** Vercel
+
+---
+
+## 🚀 Como rodar localmente
 
 1. Instale o Node.js 20 ou superior
-2. Instale as dependencias
-3. Copie `.env.example` para `.env.local`
-4. Ajuste as credenciais da API e do banco do Data System
-5. Rode o projeto em modo desenvolvimento
+2. Copie `.env.example` para `.env.local`
+3. Ajuste as credenciais da API e do banco de dados (se não for usar o Mock)
+4. Execute os seguintes comandos:
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Modos de dados
+Você poderá acessar o painel em `http://localhost:3000` usando o login `admin` e senha `admin`.
 
-### `ERP_MODE=mock`
+---
 
-Usa dados demonstrativos e permite validar layout, navegacao e refresh do painel.
+## Modos de Dados do ERP configuráveis
+
+### `ERP_MODE=mock` (Padrão)
+Usa dados demonstrativos na memória. Perfeito para validar o layout hiper-realista e as micro-interações sem precisar da VPN do banco ativa.
 
 ### `ERP_MODE=api`
-
-Busca o dashboard na rota configurada em `ERP_API_BASE_URL + ERP_API_DASHBOARD_PATH`.
-
-O endpoint deve retornar um JSON no formato de `DashboardSnapshot`.
+Busca o dashboard na rota configurada em `ERP_API_BASE_URL + ERP_API_DASHBOARD_PATH`. O endpoint deve retornar um JSON no formato mapeado de `DashboardSnapshot`.
 
 ### `ERP_MODE=database`
-
-Executa a query configurada em `ERP_DB_DASHBOARD_QUERY`.
-
-A query deve retornar 4 recordsets nesta ordem:
-
-1. Resumo
-2. Tendencia
-3. Ranking
-4. Alertas
-
-Colunas esperadas:
-
-- Resumo: `company_name`, `period_label`, `active_employees`, `net_revenue`, `revenue_target`, `orders_count`, `avg_ticket`, `conversion_rate`
-- Tendencia: `label`, `value`, `target`
-- Ranking: `collaborator`, `team`, `value`, `status`
-- Alertas: `title`, `message`, `severity`
+Executa a procedure ou query configurada em `ERP_DB_DASHBOARD_QUERY`. A fonte de dados já espera Múltiplos Recordsets (Resumo, Tendência, Ranking, Alertas) para montar o painel com uma única ida ao banco.
 
 ### `ERP_MODE=hybrid`
+Combina conectividade com o Banco direto e API legada. Banco alimenta os cards rápidos (faturamento, metas) e a API os cálculos complexos (alertas, tickets).
 
-Combina banco e API:
+---
 
-- Banco alimenta resumo, cards e tendencia
-- API alimenta ranking e alertas
+## Próximos passos e Handoff 
 
-Esse modo faz sentido quando o Data System tem leitura de banco estavel, mas certas regras de negocio ja saem prontas da API.
-
-## Proximo passo recomendado
-
-Para plugar no Data System real, eu seguiria esta ordem:
-
-1. Mapear quais tabelas, views ou endpoints entregam metas, realizado, ranking e alertas
-2. Definir um contrato unico de dashboard
-3. Validar um primeiro fluxo em `ERP_MODE=database` ou `ERP_MODE=api`
-4. Ajustar permissoes por colaborador
-5. Evoluir para WebSocket ou fila de eventos se precisarmos latencia menor
-
-## Portas abertas para integracao
-
-- O dashboard consome apenas o contrato interno `DashboardSnapshot`
-- Os conectores ficaram separados da interface
-- Existe um conector customizado reservado para o Data System real
-- A rota `/api/integration` mostra o que esta pronto e o que ainda falta
-- O canal `Ecommerce` pode ser alimentado pela Tray sem mexer na visao da `Loja Fisica`
-
-Mais detalhes em [INTEGRATION.md](./INTEGRATION.md).
-
-## Handoff rapido
-
-Se voce for passar este projeto para outro desenvolvedor, use tambem [HANDOFF.md](./HANDOFF.md).
-
-## Observacao
-
-Neste ambiente eu nao consegui executar `npm install` nem subir o app porque `node` e `npm` ainda nao estao instalados no sistema. O codigo ficou preparado no repositorio para a proxima etapa.
+- A UI da tela já está preparada para consumir da fonte de dados de produção do Data System.
+- Uma rota dedicada `Ecommerce` já aceita inputs da plataforma Tray.
+- Há um guia arquitetural para dev em [INTEGRATION.md](./INTEGRATION.md).
+- Documentação para um futuro dev assumir o bastão está em [HANDOFF.md](./HANDOFF.md).
