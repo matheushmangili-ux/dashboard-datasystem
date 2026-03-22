@@ -19,7 +19,7 @@ export function KpiCard({
   const isNegative = delta && delta < 0;
 
   return (
-    <div className={`p-5 rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}>
+    <div className={`p-5 rounded-xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${loading ? "opacity-50" : "opacity-100"}`}>
       <div className="flex flex-row items-center justify-between pb-2">
         <h3 className="tracking-tight text-sm font-medium text-muted-foreground uppercase">
           {label}

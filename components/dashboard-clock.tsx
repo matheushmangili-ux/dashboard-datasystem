@@ -45,9 +45,9 @@ export function DashboardClock() {
   const { dateLabel, timeLabel } = useMemo(() => formatDateTime(now), [now]);
 
   return (
-    <div className="clock-card">
-      <p className="clock-time">{timeLabel}</p>
-      <p className="clock-date">{dateLabel}</p>
+    <div className="inline-flex flex-col items-center gap-1">
+      <p className="text-2xl font-bold font-mono tracking-tight text-foreground">{timeLabel}</p>
+      <p className="text-xs text-muted-foreground font-medium capitalize">{dateLabel}</p>
     </div>
   );
 }

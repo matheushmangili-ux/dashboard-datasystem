@@ -4,61 +4,75 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #09090b;
+    --background: #faf6f0;
+    --foreground: #2c1810;
 
     --card: #ffffff;
-    --card-foreground: #09090b;
+    --card-foreground: #2c1810;
 
-    --border: #e4e4e7;
-    --ring: #18181b;
+    --border: #e0d5c7;
+    --ring: #8b5e3c;
 
-    --primary: #18181b;
-    --primary-foreground: #fafafa;
+    --primary: #8b4513;
+    --primary-foreground: #faf6f0;
 
-    --secondary: #f4f4f5;
-    --secondary-foreground: #18181b;
+    --secondary: #f5ede3;
+    --secondary-foreground: #2c1810;
 
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
+    --muted: #f0e8dc;
+    --muted-foreground: #7a6b5d;
 
-    --accent: #f4f4f5;
-    --accent-foreground: #18181b;
+    --accent: #d4a574;
+    --accent-foreground: #2c1810;
 
-    --destructive: #ef4444;
-    --destructive-foreground: #fafafa;
+    --destructive: #c0392b;
+    --destructive-foreground: #faf6f0;
 
-    --success: #10b981;
+    --success: #27713a;
     --success-foreground: #ffffff;
+
+    --western-gold: #d4a017;
+    --western-leather: #8b4513;
+    --western-sand: #f5deb3;
+    --western-rust: #a0522d;
+    --western-cactus: #2e5a44;
+    --western-sunset: #e8713a;
   }
 
   [data-theme='dark'] {
-    --background: #09090b;
-    --foreground: #fafafa;
+    --background: #1a1209;
+    --foreground: #f0e8dc;
 
-    --card: #141417;
-    --card-foreground: #fafafa;
+    --card: #241a0e;
+    --card-foreground: #f0e8dc;
 
-    --border: #27272a;
-    --ring: #d4d4d8;
+    --border: #3d2e1e;
+    --ring: #d4a574;
 
-    --primary: #fafafa;
-    --primary-foreground: #18181b;
+    --primary: #d4a574;
+    --primary-foreground: #1a1209;
 
-    --secondary: #27272a;
-    --secondary-foreground: #fafafa;
+    --secondary: #2e2013;
+    --secondary-foreground: #f0e8dc;
 
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
+    --muted: #2e2013;
+    --muted-foreground: #a89480;
 
-    --accent: #27272a;
-    --accent-foreground: #fafafa;
+    --accent: #8b5e3c;
+    --accent-foreground: #f0e8dc;
 
-    --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-    
-    --success: #059669;
+    --destructive: #922b21;
+    --destructive-foreground: #f0e8dc;
+
+    --success: #1e8449;
     --success-foreground: #ffffff;
+
+    --western-gold: #e6b422;
+    --western-leather: #c78a56;
+    --western-sand: #b89b72;
+    --western-rust: #c0704a;
+    --western-cactus: #4a8c65;
+    --western-sunset: #f0914a;
   }
 }
 
@@ -74,4 +88,119 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading), sans-serif;
   }
+}
+
+/* ===== WESTERN ANIMATIONS ===== */
+
+@keyframes tumbleweed {
+  0% {
+    transform: translateX(-100px) rotate(0deg);
+    opacity: 0;
+  }
+  5% { opacity: 0.5; }
+  95% { opacity: 0.5; }
+  100% {
+    transform: translateX(calc(100vw + 100px)) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes tumbleweed-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@keyframes desert-dust {
+  0% {
+    transform: translateX(-200px);
+    opacity: 0;
+  }
+  10% { opacity: 0.12; }
+  90% { opacity: 0.12; }
+  100% {
+    transform: translateX(calc(100vw + 200px));
+    opacity: 0;
+  }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes sunset-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes western-fade-in {
+  0% { opacity: 0; transform: translateY(24px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes brand-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 69, 19, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(212, 160, 23, 0.3); }
+}
+
+@keyframes horse-gallop {
+  0% { transform: translateX(110vw); }
+  100% { transform: translateX(-200px); }
+}
+
+@keyframes cactus-sway {
+  0%, 100% { transform: rotate(-1.5deg) scaleY(1); }
+  50% { transform: rotate(1.5deg) scaleY(1.02); }
+}
+
+@keyframes lasso-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes badge-shine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Western ornament corners for login card */
+.western-ornament {
+  position: relative;
+}
+.western-ornament::before,
+.western-ornament::after {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-color: var(--western-gold);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.western-ornament::before {
+  top: 12px;
+  left: 12px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.western-ornament::after {
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }

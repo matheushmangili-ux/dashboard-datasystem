@@ -87,7 +87,7 @@ export function RealtimeDashboard({
         <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <h1 className="text-xl font-bold font-heading tracking-tight flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary text-primary-foreground rounded flex items-center justify-center text-xs font-bold">
+              <div className="w-6 h-6 bg-primary text-primary-foreground rounded flex items-center justify-center text-xs font-bold" style={{ animation: "brand-glow 4s ease-in-out infinite" }}>
                 TC
               </div>
               Texas Center<span className="text-muted-foreground font-medium"> Dashboard</span>
@@ -310,11 +310,13 @@ export function RealtimeDashboard({
       </main>
 
       {/* FOOTER CLOCK */}
-      <footer className="w-full text-center py-6 border-t border-border mt-auto bg-background z-10 relative">
+      <footer className="w-full text-center py-6 mt-auto bg-background z-10 relative dashboard-western-footer">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--western-gold)] to-transparent opacity-40" />
         <DashboardClock />
+        <p className="text-[10px] font-mono text-muted-foreground/40 mt-2 tracking-widest uppercase">Texas Center &bull; Western Dashboard</p>
       </footer>
 
-      {/* EASTER EGG: BOTTOM ANIMATION */}
+      {/* WESTERN ANIMATION */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <DashboardAnimation />
       </div>
