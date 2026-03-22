@@ -4,18 +4,14 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { AlertList } from "@/components/alert-list";
 import { DashboardClock } from "@/components/dashboard-clock";
-import { EcommerceField } from "@/components/ecommerce-field";
+import { GoalGauge } from "@/components/goal-gauge";
 import { KpiCard } from "@/components/kpi-card";
-import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
-import { YearOverYearSection } from "@/components/year-over-year";
 import { getPermissions, getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
 import type {
-  AlertItem,
   DashboardSnapshot,
   LeaderboardEntry,
-  MetricCard,
   ProductRankingEntry,
   SalesChannelId,
   SalesChannelSnapshot,
@@ -24,76 +20,41 @@ import type {
 
 const REFRESH_INTERVAL_MS = 15000;
 
-type PhysicalSectionId = "overview" | "team" | "products" | "alerts";
-
-const PHYSICAL_SECTIONS: Array<{
-  id: PhysicalSectionId;
-  label: string;
-  eyebrow: string;
-  navCopy: string;
-  heroTitle: string;
-  heroCopy: string;
-  highlights: string[];
-}> = [
+const CHANNEL_CONFIG: Record<
+  SalesChannelId,
   {
-    id: "overview",
-    label: "Visao geral",
-    eyebrow: "Diretoria",
-    navCopy: "Resumo para bater o olho e decidir rapido.",
-    heroTitle: "Resumo limpo da loja fisica",
-    heroCopy:
-      "A leitura principal fica concentrada em poucos sinais visuais: meta, projecao, ritmo e alertas que pedem acao imediata.",
-    highlights: ["Meta do dia", "Pulso da equipe", "Alertas prioritarios"]
-  },
-  {
-    id: "team",
-    label: "Equipe",
-    eyebrow: "Gestao",
-    navCopy: "Desempenho separado por visao, setor e vendedor.",
-    heroTitle: "Equipe organizada por camadas",
-    heroCopy:
-      "Primeiro a leitura executiva, depois setores e por fim o detalhe individual. Isso reduz ruido e deixa a navegacao mais intuitiva.",
-    highlights: ["Visao executiva", "Setores", "Vendedores"]
-  },
-  {
-    id: "products",
-    label: "Produtos",
-    eyebrow: "Mix",
-    navCopy: "Destaques e baixo giro no mesmo fluxo de analise.",
-    heroTitle: "Produtos com leitura comercial clara",
-    heroCopy:
-      "Os campeoes e os itens de baixo giro ficam agrupados em uma trilha propria para facilitar decisao de exposicao, reposicao e acao comercial.",
-    highlights: ["Mais vendidos", "Baixo giro", "Tendencia do canal"]
-  },
-  {
-    id: "alerts",
-    label: "Alertas",
-    eyebrow: "Acao",
-    navCopy: "Fila, risco e excecoes reunidos em um lugar so.",
-    heroTitle: "Fila de atencao da operacao",
-    heroCopy:
-      "Tudo que pede intervencao rapida fica reunido em uma trilha unica, com contexto suficiente para agir sem ficar caçando informacao.",
-    highlights: ["Excecoes do turno", "Itens em risco", "Contexto do dia"]
+    title: string;
+    description: string;
+    eyebrow: string;
+    secondaryTitle: string;
+    secondaryDescription: string;
   }
-];
-
-const ECOMMERCE_MENU = ["Resultados", "Clientes", "Produtos", "Campanhas"];
+> = {
+  physical: {
+    title: "Performance da Loja Física",
+    description:
+      "Monitoramento estratégico de tração, faturamento e saúde operacional da unidade.",
+    eyebrow: "Unidade principal",
+    secondaryTitle: "Mix de Produtos da Loja",
+    secondaryDescription:
+      "Produtos com mais giro e leitura comercial rápida para ação no piso de vendas."
+  },
+  ecommerce: {
+    title: "Digital Intelligence Center",
+    description:
+      "Interface analítica sincronizada com a operação digital da Texas Center.",
+    eyebrow: "E-commerce",
+    secondaryTitle: "Mix de Produtos do Digital",
+    secondaryDescription:
+      "Itens que sustentam receita e volume no canal online ao longo do dia."
+  }
+};
 
 function formatTimestamp(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "short",
-    timeStyle: "medium"
+    timeStyle: "short"
   }).format(new Date(value));
-}
-
-function parseCurrencyLabel(value: string) {
-  const normalized = value
-    .replace(/[^\d,.-]/g, "")
-    .replace(/\./g, "")
-    .replace(",", ".");
-  const parsed = Number(normalized);
-
-  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function normalizeText(value: string) {
@@ -103,91 +64,15 @@ function normalizeText(value: string) {
     .toLowerCase();
 }
 
-function parseDeltaFromLabel(label: string) {
-  const match = label.match(/([+-]?\d+(?:[.,]\d+)?)\s*%/);
+function calculateAchievementPercent(points: TrendPoint[]) {
+  const totalValue = points.reduce((sum, point) => sum + point.value, 0);
+  const totalTarget = points.reduce((sum, point) => sum + point.target, 0);
 
-  if (!match) {
+  if (!totalTarget) {
     return 0;
   }
 
-  return parseFloat(match[1].replace(",", "."));
-}
-
-function buildChannelMetrics(channel: SalesChannelSnapshot): MetricCard[] {
-  const channelDelta = parseDeltaFromLabel(channel.deltaLabel);
-
-  return [
-    {
-      id: `${channel.id}-revenue`,
-      label: "Receita do canal",
-      value: channel.revenueLabel,
-      caption: `Origem ${channel.sourceLabel}`,
-      delta: channelDelta,
-      deltaLabel: channel.deltaLabel
-    },
-    {
-      id: `${channel.id}-orders`,
-      label: "Pedidos",
-      value: channel.ordersLabel,
-      caption: "Volume acumulado no dia",
-      delta: channelDelta,
-      deltaLabel: channel.health === "connected" ? "Atualizado" : "Em monitoramento"
-    },
-    {
-      id: `${channel.id}-ticket`,
-      label: "Ticket medio",
-      value: channel.averageTicketLabel,
-      caption: "Valor medio por pedido",
-      delta: channelDelta,
-      deltaLabel: "Leitura simplificada"
-    },
-    {
-      id: `${channel.id}-status`,
-      label: "Status",
-      value: channel.deltaLabel,
-      caption: "Comparativo com o ultimo ciclo",
-      delta: channelDelta,
-      deltaLabel: channel.health === "connected" ? "Canal conectado" : "Canal em fallback"
-    }
-  ];
-}
-
-function buildInsightBars(
-  channel: SalesChannelSnapshot,
-  trendPoints: TrendPoint[]
-): Array<{ id: string; label: string; value: string; percent: number }> {
-  const totalValue = trendPoints.reduce((sum, point) => sum + point.value, 0);
-  const totalTarget = trendPoints.reduce((sum, point) => sum + point.target, 0);
-  const orders = Number(channel.ordersLabel) || 0;
-  const revenue = parseCurrencyLabel(channel.revenueLabel);
-  const averageTicket = parseCurrencyLabel(channel.averageTicketLabel);
-
-  return [
-    {
-      id: "achievement",
-      label: "Ritmo versus meta",
-      value: channel.deltaLabel,
-      percent: totalTarget > 0 ? Math.min((totalValue / totalTarget) * 100, 100) : 0
-    },
-    {
-      id: "orders",
-      label: "Pedidos do canal",
-      value: `${channel.ordersLabel} pedidos`,
-      percent: Math.min((orders / 220) * 100, 100)
-    },
-    {
-      id: "ticket",
-      label: "Ticket medio",
-      value: channel.averageTicketLabel,
-      percent: Math.min((averageTicket / 1200) * 100, 100)
-    },
-    {
-      id: "revenue",
-      label: "Receita do canal",
-      value: channel.revenueLabel,
-      percent: Math.min((revenue / 180000) * 100, 100)
-    }
-  ];
+  return (totalValue / totalTarget) * 100;
 }
 
 function filterProductsByChannel(
@@ -201,201 +86,108 @@ function filterProductsByChannel(
   );
 }
 
-function ChannelLeaderboardList({
-  title,
-  subtitle,
+function getHealthLabel(health: SalesChannelSnapshot["health"]) {
+  if (health === "connected") {
+    return "Conectado";
+  }
+
+  if (health === "fallback") {
+    return "Fallback";
+  }
+
+  return "Configuração pendente";
+}
+
+function TechLeaderboard({
   leaders
 }: {
-  title: string;
-  subtitle: string;
   leaders: LeaderboardEntry[];
 }) {
+  if (leaders.length === 0) {
+    return <p className="tech-empty-copy">Nenhum destaque disponível neste momento.</p>;
+  }
+
   return (
-    <div className="leaders-card card">
-      <p className="section-eyebrow">{subtitle}</p>
-      <h2 className="section-title">{title}</h2>
-      <div className="leaders-list compact">
-        {leaders.map((leader) => (
-          <div className="leader-row compact" key={leader.id}>
-            <div className="leader-rank">{leader.rank}</div>
-            <div>
-              <p className="leader-name">{leader.name}</p>
-              <p className="leader-team">{leader.team}</p>
-            </div>
-            <div>
-              <p className="leader-value">{leader.displayValue}</p>
-              <p className="leader-status">{leader.status}</p>
-            </div>
+    <div className="tech-list">
+      {leaders.map((leader) => (
+        <article className="tech-list-item" key={leader.id}>
+          <div className="tech-list-rank">{leader.rank}</div>
+          <div className="tech-list-copy">
+            <p className="tech-list-title">{leader.name}</p>
+            <p className="tech-list-subtitle">{leader.team}</p>
           </div>
-        ))}
-      </div>
+          <div className="tech-list-meta">
+            <strong>{leader.displayValue}</strong>
+            <span>{leader.status}</span>
+          </div>
+        </article>
+      ))}
     </div>
   );
 }
 
-function ChannelProductsList({
-  title,
-  subtitle = "Produtos",
+function TechProducts({
   products
 }: {
-  title: string;
-  subtitle?: string;
   products: ProductRankingEntry[];
 }) {
-  return (
-    <div className="alerts-card card">
-      <p className="section-eyebrow">{subtitle}</p>
-      <h2 className="section-title">{title}</h2>
-      <div className="product-list">
-        {products.map((item, index) => (
-          <article className="product-row" key={item.id}>
-            <div className="product-index">{index + 1}</div>
-            <div className="product-copy">
-              <p className="product-name">{item.name}</p>
-              <p className="product-channel">{item.channelLabel}</p>
-            </div>
-            <div className="product-metric">
-              <p className="product-units">{item.unitsSold} un</p>
-              <p className="product-revenue">{item.revenueLabel}</p>
-              <p className="product-status">{item.statusLabel}</p>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PhysicalQuickMenu({ channel }: { channel: SalesChannelSnapshot }) {
-  return (
-    <section className="card physical-ops-card">
-      <div className="panel-header">
-        <div>
-          <p className="section-eyebrow">Leitura da operacao</p>
-          <h2 className="section-title">Atalhos do turno</h2>
-        </div>
-        <span className={`connector-health ${channel.health}`}>{channel.health}</span>
-      </div>
-
-      <div className="physical-ops-grid">
-        <div className="physical-ops-item">
-          <strong>Meta e ritmo</strong>
-          <span>Meta do dia, projecao e pulso da equipe em destaque.</span>
-        </div>
-        <div className="physical-ops-item">
-          <strong>Equipe</strong>
-          <span>Diretoria, lideranca e operacao acessam profundidades diferentes.</span>
-        </div>
-        <div className="physical-ops-item">
-          <strong>Produtos</strong>
-          <span>Mais vendidos e baixo giro ficam em uma trilha propria.</span>
-        </div>
-        <div className="physical-ops-item">
-          <strong>Alertas</strong>
-          <span>Fila de atencao prioriza o que merece acao no turno.</span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function InsightBarsCard({
-  channel,
-  trendPoints
-}: {
-  channel: SalesChannelSnapshot;
-  trendPoints: TrendPoint[];
-}) {
-  const insightBars = buildInsightBars(channel, trendPoints);
+  if (products.length === 0) {
+    return <p className="tech-empty-copy">Nenhum produto disponível para este canal.</p>;
+  }
 
   return (
-    <div className="leaders-card card">
-      <p className="section-eyebrow">Leitura rapida</p>
-      <h2 className="section-title">Graficos faceis de ler</h2>
-      <div className="insight-bar-list">
-        {insightBars.map((item) => (
-          <div className="insight-bar-item" key={item.id}>
-            <div className="insight-bar-copy">
-              <span>{item.label}</span>
-              <strong>{item.value}</strong>
-            </div>
-            <div className="insight-bar-track" aria-hidden="true">
-              <span className="insight-bar-fill" style={{ width: `${item.percent}%` }} />
-            </div>
+    <div className="tech-product-list">
+      {products.map((product) => (
+        <article className="tech-product-item" key={product.id}>
+          <div className="tech-product-copy">
+            <p className="tech-product-name">{product.name}</p>
+            <p className="tech-product-meta">{product.statusLabel}</p>
           </div>
-        ))}
-      </div>
+          <div className="tech-product-values">
+            <strong>{product.revenueLabel}</strong>
+            <span>{product.unitsSold} un</span>
+          </div>
+        </article>
+      ))}
     </div>
   );
 }
 
-function PhysicalSectionNav({
-  activeSection,
-  onChange
-}: {
-  activeSection: PhysicalSectionId;
-  onChange: (section: PhysicalSectionId) => void;
-}) {
-  return (
-    <section className="card physical-section-nav">
-      <div className="panel-header">
-        <div>
-          <p className="section-eyebrow">Mapa da loja fisica</p>
-          <h2 className="section-title">Menus e submenus mais intuitivos</h2>
-        </div>
-      </div>
-
-      <div className="physical-section-grid">
-        {PHYSICAL_SECTIONS.map((section) => (
-          <button
-            key={section.id}
-            type="button"
-            className={`physical-section-button ${
-              activeSection === section.id ? "active" : ""
-            }`}
-            onClick={() => onChange(section.id)}
-          >
-            <span className="physical-section-eyebrow">{section.eyebrow}</span>
-            <strong>{section.label}</strong>
-            <span>{section.navCopy}</span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function AlertsCard({ alerts }: { alerts: AlertItem[] }) {
-  return (
-    <div className="alerts-card card">
-      <p className="section-eyebrow">Alertas</p>
-      <h2 className="section-title">Pontos que pedem atencao</h2>
-      <AlertList alerts={alerts} />
-    </div>
-  );
-}
-
-function AnalyticsSection({
-  channel,
-  trendPoints
-}: {
-  channel: SalesChannelSnapshot;
-  trendPoints: TrendPoint[];
-}) {
-  return (
-    <section className="section-grid channel-analytics-grid">
-      <div className="chart-card card">
-        <p className="section-eyebrow">Grafico principal</p>
-        <h2 className="section-title">Desempenho do canal</h2>
-        <p className="section-copy">
-          Um grafico direto para comparar a entrega ao longo do dia com a meta.
-        </p>
-        <TrendChart points={trendPoints} />
-      </div>
-
-      <InsightBarsCard channel={channel} trendPoints={trendPoints} />
-    </section>
-  );
+function buildChannelMetrics(channel: SalesChannelSnapshot) {
+  return [
+    {
+      id: `${channel.id}-revenue`,
+      label: "Receita do canal",
+      value: channel.revenueLabel,
+      caption: `Origem ${channel.sourceLabel}`,
+      delta: 0,
+      deltaLabel: channel.deltaLabel
+    },
+    {
+      id: `${channel.id}-orders`,
+      label: "Pedidos",
+      value: channel.ordersLabel,
+      caption: "Volume acumulado hoje",
+      delta: 0,
+      deltaLabel: "Atualização em tempo real"
+    },
+    {
+      id: `${channel.id}-ticket`,
+      label: "Ticket médio",
+      value: channel.averageTicketLabel,
+      caption: "Eficiência comercial do canal",
+      delta: 0,
+      deltaLabel: "Leitura operacional"
+    },
+    {
+      id: `${channel.id}-status`,
+      label: "Status do canal",
+      value: getHealthLabel(channel.health),
+      caption: "Condição atual da integração",
+      delta: 0,
+      deltaLabel: channel.sourceLabel
+    }
+  ];
 }
 
 export function RealtimeDashboard({
@@ -408,10 +200,8 @@ export function RealtimeDashboard({
   onSignOut: () => void;
 }) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeChannelId, setActiveChannelId] = useState<SalesChannelId>("physical");
-  const [activePhysicalSection, setActivePhysicalSection] =
-    useState<PhysicalSectionId>("overview");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const permissions = useMemo(
@@ -450,7 +240,7 @@ export function RealtimeDashboard({
         const message =
           error instanceof Error
             ? error.message
-            : "Nao foi possivel atualizar os dados agora.";
+            : "Não foi possível atualizar os dados agora.";
 
         setErrorMessage(message);
       }
@@ -472,15 +262,15 @@ export function RealtimeDashboard({
     [activeChannelId, snapshot.salesChannels]
   );
 
+  const activeConfig = useMemo(
+    () => CHANNEL_CONFIG[activeChannelId],
+    [activeChannelId]
+  );
+
   const activeTrendPoints = useMemo(
     () =>
       activeChannel?.trendPoints.length ? activeChannel.trendPoints : snapshot.trendPoints,
     [activeChannel, snapshot.trendPoints]
-  );
-
-  const lastUpdated = useMemo(
-    () => formatTimestamp(snapshot.generatedAt),
-    [snapshot.generatedAt]
   );
 
   const activeMetrics = useMemo(() => {
@@ -498,262 +288,186 @@ export function RealtimeDashboard({
   const activeLeaderboard = useMemo(
     () =>
       snapshot.channelLeaderboards.find(
-        (item) => item.channelId === activeChannelId
-      ) ?? snapshot.channelLeaderboards[0],
+        (leaderboard) => leaderboard.channelId === activeChannelId
+      )?.leaders ?? [],
     [activeChannelId, snapshot.channelLeaderboards]
   );
 
   const topProducts = useMemo(() => {
     const filtered = filterProductsByChannel(snapshot.topProducts, activeChannelId);
-
     return filtered.length > 0 ? filtered.slice(0, 5) : snapshot.topProducts.slice(0, 5);
   }, [activeChannelId, snapshot.topProducts]);
 
   const lowProducts = useMemo(() => {
     const filtered = filterProductsByChannel(snapshot.lowProducts, activeChannelId);
-
     return filtered.length > 0 ? filtered.slice(0, 5) : snapshot.lowProducts.slice(0, 5);
   }, [activeChannelId, snapshot.lowProducts]);
 
-  const activePhysicalConfig = useMemo(
-    () =>
-      PHYSICAL_SECTIONS.find((section) => section.id === activePhysicalSection) ??
-      PHYSICAL_SECTIONS[0],
-    [activePhysicalSection]
+  const achievementPercent = useMemo(
+    () => calculateAchievementPercent(activeTrendPoints),
+    [activeTrendPoints]
   );
 
-  const heroTitle =
-    activeChannelId === "physical"
-      ? activePhysicalConfig.heroTitle
-      : "E-commerce com leitura propria";
-
-  const heroCopy =
-    activeChannelId === "physical"
-      ? activePhysicalConfig.heroCopy
-      : "Uma pagina propria para o digital, com atalhos de e-commerce, visao de produtos e leitura facil do que mais importa.";
-
-  const heroHighlights =
-    activeChannelId === "physical"
-      ? activePhysicalConfig.highlights
-      : ECOMMERCE_MENU;
-
-  const showYearOverYear =
-    permissions.canViewFinancials && snapshot.yearOverYear?.length > 0;
+  const lastUpdated = useMemo(
+    () => formatTimestamp(snapshot.generatedAt),
+    [snapshot.generatedAt]
+  );
 
   if (!activeChannel) {
     return null;
   }
 
   return (
-    <main className="shell">
-      <section className="user-strip card">
-        <div>
-          <p className="status-label">Sessao ativa</p>
-          <h2 className="status-value">{currentUser.name}</h2>
-          <p className="section-copy">
-            {currentUser.title} | {currentUser.team}
-          </p>
-        </div>
-
-        <div className="user-actions">
-          <div className="channel-switcher">
-            <button
-              className={`tab-button ${activeChannelId === "physical" ? "active" : ""}`}
-              onClick={() => setActiveChannelId("physical")}
-              type="button"
-            >
-              Loja fisica
-            </button>
-            <button
-              className={`tab-button ${activeChannelId === "ecommerce" ? "active" : ""}`}
-              onClick={() => setActiveChannelId("ecommerce")}
-              type="button"
-            >
-              E-commerce
-            </button>
+    <main className="shell tech-dashboard-shell">
+      <header className="tech-dashboard-header animate-tech">
+        <div className="tech-header-copy">
+          <div className="tech-kicker-row">
+            <span className="tech-live-dot" aria-hidden="true" />
+            <span className="tech-kicker">Sistema Operacional</span>
+            <span className="tech-user-summary">
+              {currentUser.name} | {getRoleLabel(currentUser.role)}
+            </span>
           </div>
-          <DashboardClock />
-          <span className="role-badge">{getRoleLabel(currentUser.role)}</span>
-          <span className="role-badge">
-            {permissions.scope === "company" ? "Escopo empresa" : "Escopo equipe"}
-          </span>
-          <button className="secondary-button" onClick={onSignOut} type="button">
-            Trocar perfil
-          </button>
-        </div>
-      </section>
-
-      <section className="card channel-page-hero">
-        <div className="channel-page-copy">
-          <p className="section-eyebrow">
-            {activeChannel.label}
-            {activeChannelId === "physical" ? ` | ${activePhysicalConfig.eyebrow}` : ""}
-          </p>
-          <h1 className="channel-page-title">{heroTitle}</h1>
-          <p className="section-copy">{heroCopy}</p>
-          <div className="channel-menu-strip">
-            {heroHighlights.map((item) => (
-              <span className="channel-menu-chip" key={item}>
-                {item}
-              </span>
-            ))}
-          </div>
+          <h1 className="tech-dashboard-title">
+            DATA
+            <span className="tech-dashboard-accent">SYSTEM</span>
+          </h1>
+          <p className="tech-dashboard-copy">{activeConfig.description}</p>
         </div>
 
-        <aside className="channel-page-aside">
-          <div className="channel-page-status">
+        <div className="tech-header-side">
+          <div className="tech-header-meta">
             <span className={`connector-health ${activeChannel.health}`}>
-              {activeChannel.health}
+              {getHealthLabel(activeChannel.health)}
             </span>
             <span className="connector-chip">{activeChannel.sourceLabel}</span>
+            <span className="connector-chip">{snapshot.source.label}</span>
+            {isPending ? <span className="loading-badge">Sincronizando</span> : null}
           </div>
-          <p className="section-copy">{activeChannel.description}</p>
-          <p className="channel-page-updated">{`Ultima atualizacao: ${lastUpdated}`}</p>
-          {isPending ? <span className="loading-badge">Sincronizando</span> : null}
-          {errorMessage ? <p className="section-copy">{errorMessage}</p> : null}
-        </aside>
+
+          <nav className="tech-channel-nav" aria-label="Canais">
+            {(["physical", "ecommerce"] as SalesChannelId[]).map((channelId) => (
+              <button
+                key={channelId}
+                type="button"
+                className={`tech-channel-button ${
+                  activeChannelId === channelId ? "active" : ""
+                }`}
+                onClick={() => setActiveChannelId(channelId)}
+              >
+                {channelId === "physical" ? "Loja Física" : "E-commerce"}
+              </button>
+            ))}
+          </nav>
+
+          <div className="tech-toolbar">
+            <DashboardClock />
+            <button className="secondary-button" onClick={onSignOut} type="button">
+              Trocar perfil
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {errorMessage ? (
+        <p className="tech-inline-error animate-tech">{errorMessage}</p>
+      ) : null}
+
+      <section
+        className="tech-hero-grid animate-tech"
+        style={{ animationDelay: "0.12s" }}
+      >
+        <GoalGauge
+          percent={achievementPercent}
+          label="Atingimento da meta diária"
+          value={activeChannel.revenueLabel}
+        />
+
+        <article className="card-tech tech-status-card">
+          <p className="tech-card-eyebrow">Status da conexão</p>
+          <h2 className="tech-card-title">Canal pronto para operação</h2>
+          <div className="tech-status-grid">
+            <div className="tech-status-item">
+              <span>Canal</span>
+              <strong>{activeChannel.label}</strong>
+            </div>
+            <div className="tech-status-item">
+              <span>Última atualização</span>
+              <strong>{lastUpdated}</strong>
+            </div>
+            <div className="tech-status-item">
+              <span>Pedidos</span>
+              <strong>{activeChannel.ordersLabel}</strong>
+            </div>
+            <div className="tech-status-item">
+              <span>Ticket médio</span>
+              <strong>{activeChannel.averageTicketLabel}</strong>
+            </div>
+          </div>
+          <p className="tech-status-note">
+            {activeChannel.description}
+          </p>
+        </article>
       </section>
 
-      <section className="section-grid channel-metric-grid" aria-label="Indicadores do canal">
+      <section
+        className="tech-kpi-grid animate-tech"
+        style={{ animationDelay: "0.22s" }}
+      >
         {activeMetrics.map((metric) => (
           <KpiCard key={metric.id} metric={metric} loading={isPending} />
         ))}
       </section>
 
-      {activeChannelId === "physical" ? (
-        <>
-          <PhysicalSectionNav
-            activeSection={activePhysicalSection}
-            onChange={setActivePhysicalSection}
-          />
+      <section
+        className="tech-main-grid animate-tech"
+        style={{ animationDelay: "0.32s" }}
+      >
+        <article className="card-tech tech-chart-card">
+          <div className="tech-panel-header">
+            <div>
+              <p className="tech-card-eyebrow">{activeConfig.eyebrow}</p>
+              <h2 className="tech-card-title">{activeConfig.title}</h2>
+            </div>
+            <span className="tech-panel-pill">{activeChannel.deltaLabel}</span>
+          </div>
+          <TrendChart points={activeTrendPoints} />
+        </article>
 
-          {activePhysicalSection === "overview" ? (
-            <>
-              <PhysicalQuickMenu channel={activeChannel} />
-              {permissions.canViewRanking ? (
-                <SalesTeamPanel forcedView="executive" />
-              ) : null}
-              <AnalyticsSection channel={activeChannel} trendPoints={activeTrendPoints} />
-              <section className="section-grid channel-rank-grid">
-                <ChannelProductsList
-                  products={topProducts}
-                  title="Produtos em destaque na loja"
-                />
-                {permissions.canViewAlerts ? (
-                  <AlertsCard alerts={snapshot.alerts as AlertItem[]} />
-                ) : (
-                  <ChannelProductsList
-                    products={lowProducts}
-                    subtitle="Baixo giro"
-                    title="Itens com menor tracao"
-                  />
-                )}
-              </section>
-              {showYearOverYear ? (
-                <YearOverYearSection items={snapshot.yearOverYear} />
-              ) : null}
-            </>
-          ) : null}
+        <aside className="tech-side-stack">
+          <article className="card-tech tech-side-card">
+            <p className="tech-card-eyebrow">Fila de atenção</p>
+            <h2 className="tech-card-title">Alertas em foco</h2>
+            <AlertList alerts={snapshot.alerts} />
+          </article>
 
-          {activePhysicalSection === "team" ? (
-            <>
-              {permissions.canViewRanking ? (
-                <SalesTeamPanel />
-              ) : (
-                <section className="card physical-ops-card">
-                  <p className="section-eyebrow">Equipe</p>
-                  <h2 className="section-title">Acesso restrito</h2>
-                  <p className="section-copy">
-                    Seu perfil nao possui acesso ao detalhamento da equipe.
-                  </p>
-                </section>
-              )}
-              <AnalyticsSection channel={activeChannel} trendPoints={activeTrendPoints} />
-              <section className="section-grid channel-rank-grid">
-                <ChannelLeaderboardList
-                  leaders={activeLeaderboard?.leaders ?? []}
-                  subtitle="Equipe"
-                  title={activeLeaderboard?.title ?? "Top colaboradores"}
-                />
-                {permissions.canViewAlerts ? (
-                  <AlertsCard alerts={snapshot.alerts as AlertItem[]} />
-                ) : (
-                  <ChannelProductsList
-                    products={topProducts}
-                    title="Produtos que sustentam a equipe"
-                  />
-                )}
-              </section>
-            </>
-          ) : null}
+          <article className="card-tech tech-side-card">
+            <p className="tech-card-eyebrow">Mix de produtos</p>
+            <h2 className="tech-card-title">{activeConfig.secondaryTitle}</h2>
+            <p className="tech-side-copy">{activeConfig.secondaryDescription}</p>
+            <TechProducts products={topProducts} />
+          </article>
+        </aside>
+      </section>
 
-          {activePhysicalSection === "products" ? (
-            <>
-              <section className="section-grid channel-rank-grid">
-                <ChannelProductsList
-                  products={topProducts}
-                  title={`Mais vendidos da ${activeChannel.label}`}
-                />
-                <ChannelProductsList
-                  products={lowProducts}
-                  subtitle="Baixo giro"
-                  title={`Itens que merecem revisao na ${activeChannel.label}`}
-                />
-              </section>
-              <AnalyticsSection channel={activeChannel} trendPoints={activeTrendPoints} />
-            </>
-          ) : null}
+      <section
+        className="tech-bottom-grid animate-tech"
+        style={{ animationDelay: "0.42s" }}
+      >
+        {permissions.canViewRanking ? (
+          <article className="card-tech tech-list-card">
+            <p className="tech-card-eyebrow">Ranking</p>
+            <h2 className="tech-card-title">Destaques do canal</h2>
+            <TechLeaderboard leaders={activeLeaderboard} />
+          </article>
+        ) : null}
 
-          {activePhysicalSection === "alerts" ? (
-            <>
-              <section className="section-grid channel-rank-grid">
-                {permissions.canViewAlerts ? (
-                  <AlertsCard alerts={snapshot.alerts as AlertItem[]} />
-                ) : null}
-                <ChannelProductsList
-                  products={lowProducts}
-                  subtitle="Prioridades"
-                  title="Itens que merecem acao comercial"
-                />
-              </section>
-              <AnalyticsSection channel={activeChannel} trendPoints={activeTrendPoints} />
-            </>
-          ) : null}
-        </>
-      ) : (
-        <>
-          <EcommerceField channel={activeChannel} />
-          <AnalyticsSection channel={activeChannel} trendPoints={activeTrendPoints} />
-
-          {showYearOverYear ? <YearOverYearSection items={snapshot.yearOverYear} /> : null}
-
-          {permissions.canViewRanking ? (
-            <section className="section-grid channel-rank-grid">
-              <ChannelLeaderboardList
-                leaders={activeLeaderboard?.leaders ?? []}
-                subtitle="Equipe"
-                title={activeLeaderboard?.title ?? "Top colaboradores"}
-              />
-              <ChannelProductsList
-                products={topProducts}
-                title={`Mais vendidos do ${activeChannel.label}`}
-              />
-            </section>
-          ) : null}
-
-          <section className="section-grid channel-rank-grid">
-            <ChannelProductsList
-              products={lowProducts}
-              subtitle="Baixo giro"
-              title={`Menor giro do ${activeChannel.label}`}
-            />
-
-            {permissions.canViewAlerts ? (
-              <AlertsCard alerts={snapshot.alerts as AlertItem[]} />
-            ) : null}
-          </section>
-        </>
-      )}
+        <article className="card-tech tech-list-card">
+          <p className="tech-card-eyebrow">Baixo giro</p>
+          <h2 className="tech-card-title">Itens que pedem ação</h2>
+          <TechProducts products={lowProducts} />
+        </article>
+      </section>
     </main>
   );
 }
