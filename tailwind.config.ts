@@ -25,6 +25,12 @@ const config: Config = {
         destructive: "var(--destructive)",
         "destructive-foreground": "var(--destructive-foreground)",
         ring: "var(--ring)",
+        "western-gold": "var(--western-gold)",
+        "western-leather": "var(--western-leather)",
+        "western-sand": "var(--western-sand)",
+        "western-rust": "var(--western-rust)",
+        "western-cactus": "var(--western-cactus)",
+        "western-sunset": "var(--western-sunset)",
       },
       fontFamily: {
         sans: ["var(--font-body)"],

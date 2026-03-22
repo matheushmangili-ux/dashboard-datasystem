@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import { 
   LayoutDashboard, Users, Target, PieChart, Store, 
   ShoppingCart, Settings, ChevronDown, Activity, TextSearch, MessageSquare, Briefcase, Package
@@ -15,8 +16,8 @@ export type SidebarView =
 type MenuItem = {
   id: string;
   label: string;
-  icon: any;
-  subItems?: { id: string; label: string; icon: any }[];
+  icon: LucideIcon;
+  subItems?: { id: string; label: string; icon: LucideIcon }[];
 };
 
 const MENU_ITEMS: MenuItem[] = [
@@ -59,12 +60,18 @@ export function Sidebar({
     <aside className="w-[280px] h-screen bg-card border-r border-border flex flex-col fixed top-0 left-0 hidden md:flex z-50">
       <div className="p-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary text-primary-foreground rounded-lg flex items-center justify-center text-sm font-bold shadow-md hover:rotate-12 transition-transform cursor-pointer">
+          <div
+            className="w-8 h-8 bg-primary text-primary-foreground rounded-lg flex items-center justify-center text-sm font-bold shadow-md hover:rotate-12 transition-transform cursor-pointer"
+            style={{ animation: "brand-glow 4s ease-in-out infinite" }}
+          >
             TC
           </div>
-          <h1 className="text-xl font-bold font-heading tracking-tight">
-            Texas Center
-          </h1>
+          <div>
+            <h1 className="text-xl font-bold font-heading tracking-tight">
+              Texas Center
+            </h1>
+            <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-widest">Western Dashboard</p>
+          </div>
         </div>
       </div>
 
@@ -137,7 +144,7 @@ export function Sidebar({
           Calculadora de Parcelas
         </button>
         <p className="text-[11px] text-center font-mono text-muted-foreground/60 mt-4">
-          Texas Center v2.0
+          Texas Center v2.0 <span className="text-[var(--western-gold)]">&#9733;</span>
         </p>
       </div>
     </aside>
