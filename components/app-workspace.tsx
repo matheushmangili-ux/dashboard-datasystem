@@ -9,20 +9,24 @@ import { CadastrosView } from "@/components/cadastros-view";
 import { IndicadoresView } from "@/components/indicadores-view";
 import { EcommerceView } from "@/components/ecommerce-view";
 import { FisicaView } from "@/components/fisica-view";
+import { MetasView } from "@/components/metas-view";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
+import type { SpreadsheetData } from "@/lib/spreadsheet/parse-metas";
 
 export function AppWorkspace({
   currentUser,
   initialSnapshot,
   onSignOut,
-  readiness
+  readiness,
+  metasData
 }: {
   currentUser: AuthUser;
   initialSnapshot: DashboardSnapshot;
   onSignOut: () => void;
   readiness: IntegrationReadiness;
+  metasData: SpreadsheetData;
 }) {
   const [view, setView] = useState<SidebarView>("dashboard");
 
@@ -49,6 +53,8 @@ export function AppWorkspace({
           </div>
         ) : view === "fisica" ? (
           <FisicaView />
+        ) : view === "metas" ? (
+          <MetasView data={metasData} />
         ) : (
           <div className="flex-1">
             {/* Outras telas (vendedores, metas) podem renderizar views especificas,
