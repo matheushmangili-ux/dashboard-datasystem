@@ -55,6 +55,7 @@ function HorseSvg() {
   );
 }
 
+/* ===== Bottom bar animation (tumbleweeds, horse, cacti) ===== */
 export function DashboardAnimation() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -119,6 +120,79 @@ export function DashboardAnimation() {
         className="absolute bottom-5 h-4 w-28 rounded-full bg-[var(--western-sand)]"
         style={{ animation: "desert-dust 18s linear 6s infinite", filter: "blur(14px)" }}
       />
+    </div>
+  );
+}
+
+/* ===== Subtle home desert scene (extends login atmosphere) ===== */
+export function HomeDesertScene() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      {/* Very subtle sky gradient at top */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-[200px]" 
+        style={{
+          background: "linear-gradient(to bottom, var(--western-sand), transparent)",
+          opacity: 0.06,
+        }}
+      />
+
+      {/* Faint sun glow in top-right */}
+      <div
+        className="absolute top-[3%] right-[8%] w-40 h-40 rounded-full"
+        style={{
+          background: "radial-gradient(circle, var(--western-gold) 0%, transparent 70%)",
+          opacity: 0.04,
+          animation: "sunset-pulse 6s ease-in-out infinite",
+        }}
+      />
+
+      {/* Twinkling stars (very subtle) */}
+      {[
+        { top: "5%", left: "15%", delay: "0s", size: 2 },
+        { top: "8%", left: "40%", delay: "2s", size: 1.5 },
+        { top: "3%", left: "65%", delay: "1s", size: 2 },
+        { top: "12%", left: "80%", delay: "3.5s", size: 1.5 },
+        { top: "6%", left: "30%", delay: "4s", size: 2 },
+        { top: "10%", left: "55%", delay: "1.5s", size: 1.5 },
+        { top: "4%", left: "90%", delay: "2.5s", size: 2 },
+      ].map((s, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full bg-[var(--western-gold)]"
+          style={{
+            top: s.top,
+            left: s.left,
+            width: s.size,
+            height: s.size,
+            animation: `star-twinkle 4s ease-in-out ${s.delay} infinite`,
+            opacity: 0.3,
+          }}
+        />
+      ))}
+
+      {/* Floating dust particles (extremely subtle) */}
+      <div
+        className="absolute top-[20%] h-3 w-24 rounded-full bg-[var(--western-sand)]"
+        style={{ animation: "desert-dust 25s linear infinite", filter: "blur(12px)", opacity: 0.06 }}
+      />
+      <div
+        className="absolute top-[45%] h-2 w-16 rounded-full bg-[var(--western-sand)]"
+        style={{ animation: "desert-dust 30s linear 8s infinite", filter: "blur(10px)", opacity: 0.04 }}
+      />
+      <div
+        className="absolute top-[70%] h-2 w-20 rounded-full bg-[var(--western-sand)]"
+        style={{ animation: "desert-dust 22s linear 15s infinite", filter: "blur(14px)", opacity: 0.05 }}
+      />
+
+      {/* Very faint desert horizon silhouette at the bottom */}
+      <svg className="absolute bottom-0 w-full opacity-[0.03]" height="80" viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path d="M0,50 Q200,20 400,40 T800,30 T1200,45 T1440,35 L1440,80 L0,80Z" fill="var(--western-leather)" />
+      </svg>
     </div>
   );
 }

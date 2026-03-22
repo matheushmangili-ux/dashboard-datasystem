@@ -7,7 +7,7 @@ import { LogOut, TrendingUp, Trophy, AlertTriangle } from "lucide-react";
 import { KpiCard } from "@/components/kpi-card";
 import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
-import { DashboardAnimation } from "@/components/animations";
+import { DashboardAnimation, HomeDesertScene } from "@/components/animations";
 import { DashboardClock } from "@/components/dashboard-clock";
 import { getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
@@ -316,8 +316,9 @@ export function RealtimeDashboard({
         <p className="text-[10px] font-mono text-muted-foreground/40 mt-2 tracking-widest uppercase">Texas Center &bull; Western Dashboard</p>
       </footer>
 
-      {/* WESTERN ANIMATION */}
+      {/* SUBTLE DESERT SCENE (extends login atmosphere) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <HomeDesertScene />
         <DashboardAnimation />
       </div>
     </div>
