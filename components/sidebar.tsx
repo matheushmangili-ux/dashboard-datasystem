@@ -168,14 +168,13 @@ export function Sidebar({
       {/* Logo + Branding */}
       <div className="p-6 pb-4">
         <div className="flex items-center gap-3">
-          <div
-            className={`w-8 h-8 bg-primary text-primary-foreground rounded-lg flex items-center justify-center text-sm font-bold shadow-md hover:rotate-12 transition-transform cursor-pointer ${lassoing ? "animate-[lasso-spin_0.4s_ease-in-out_2]" : ""}`}
-            style={!lassoing ? { animation: "brand-glow 4s ease-in-out infinite" } : undefined}
+          <img 
+            src="/logo.png" 
+            alt="Texas Center" 
+            className={`w-10 h-10 object-contain drop-shadow-md hover:rotate-12 transition-transform cursor-pointer ${lassoing ? "animate-[lasso-spin_0.4s_ease-in-out_2]" : ""}`}
             onClick={handleLogoClick}
             title="Yeehaw!"
-          >
-            TC
-          </div>
+          />
           <div>
             <h1 className="text-xl font-bold font-heading tracking-tight">
               Texas Center

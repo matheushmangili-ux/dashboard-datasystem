@@ -191,21 +191,30 @@ export function FisicaView() {
                     <BookOpen className="w-4 h-4 text-amber-500" />
                     <h4 className="text-sm font-bold">Catálogo +Q1</h4>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-muted/30 p-3 rounded-lg border border-border/50 text-center flex flex-col justify-center relative overflow-hidden">
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Dia</p>
-                      <p className="text-lg font-black text-foreground">{seller.catalogQ1.sentToday}</p>
-                      {seller.catalogQ1.sentToday > 10 && <Award className="w-12 h-12 text-success/10 absolute -right-2 -bottom-2" />}
-                    </div>
-                    <div className="bg-muted/30 p-3 rounded-lg border border-border/50 text-center flex flex-col justify-center">
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Semana</p>
-                      <p className="text-lg font-black text-foreground">{seller.catalogQ1.sentWeek}</p>
-                    </div>
-                    <div className="bg-muted/30 p-3 rounded-lg border border-border/50 text-center flex flex-col justify-center">
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Mês</p>
-                      <p className="text-lg font-black text-foreground">{seller.catalogQ1.sentMonth}</p>
-                    </div>
-                  </div>
+                  {(() => {
+                    let catValue = seller.catalogQ1.sentWeek;
+                    let catTarget = 40;
+                    if (timeRange === 'hoje') { catValue = seller.catalogQ1.sentToday; catTarget = 10; }
+                    else if (timeRange === 'mes') { catValue = seller.catalogQ1.sentMonth; catTarget = 150; }
+                    else if (timeRange === 'trimestre') { catValue = seller.catalogQ1.sentMonth * 3; catTarget = 450; }
+                    else if (timeRange === 'ano') { catValue = seller.catalogQ1.sentMonth * 12; catTarget = 1800; }
+                    
+                    return (
+                      <div className="bg-muted/30 p-4 rounded-lg border border-border/50 flex flex-col justify-center h-[88px]">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                          Envios ({timeRange === 'hoje' ? 'Dia' : timeRange})
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-4xl font-black text-foreground drop-shadow-sm">{catValue}</p>
+                          {catValue >= catTarget && (
+                            <div className="bg-amber-500/10 p-2 rounded-full border border-amber-500/20 shadow-sm" title="Meta Atingida!">
+                              <Award className="w-6 h-6 text-amber-500" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
               </div>

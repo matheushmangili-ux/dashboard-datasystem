@@ -266,10 +266,10 @@ function LoginScreen() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md" style={{ animation: "western-fade-in 0.6s ease-out" }}>
           <div className="flex justify-center">
             <div
-              className="w-16 h-16 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center text-3xl font-extrabold uppercase shadow-xl tracking-tighter"
-              style={{ animation: "brand-glow 3s ease-in-out infinite" }}
+              className="flex items-center justify-center p-2 rounded-2xl bg-white/5 border border-white/10 shadow-2xl backdrop-blur-sm"
+              style={{ animation: "brand-glow 4s ease-in-out infinite" }}
             >
-              TC
+              <img src="/logo.png" alt="Texas Center Logo" className="w-20 h-20 object-contain drop-shadow-xl" />
             </div>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground font-heading tracking-tight">
