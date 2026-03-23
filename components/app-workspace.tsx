@@ -7,6 +7,7 @@ import { RealtimeDashboard } from "@/components/realtime-dashboard";
 import { Sidebar, type SidebarView } from "@/components/sidebar";
 import { CadastrosView } from "@/components/cadastros-view";
 import { IndicadoresView } from "@/components/indicadores-view";
+import { ConstructionView } from "@/components/construction-view";
 import { EcommerceView } from "@/components/ecommerce-view";
 import { FisicaView } from "@/components/fisica-view";
 import { MetasView } from "@/components/metas-view";
@@ -36,7 +37,9 @@ export function AppWorkspace({
         {view === "cadastros" ? (
           <CadastrosView onNavigate={setView} />
         ) : view === "indicadores" ? (
-          <IndicadoresView onNavigate={setView} snapshot={initialSnapshot} />
+          <ConstructionView title="Indicadores de Performance" onNavigate={setView} />
+        ) : view === "vendedores" ? (
+          <ConstructionView title="Equipe de Vendedores" onNavigate={setView} />
         ) : view.startsWith("ecommerce-") ? (
           <EcommerceView activeView={view as any} />
         ) : view === "admin" ? (

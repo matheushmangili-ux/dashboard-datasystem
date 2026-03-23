@@ -192,20 +192,8 @@ export function RealtimeDashboard({
         {/* MIDDLE GRID: Charts & Leaderboard */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Trend Chart */}
-          <div className="lg:col-span-2 p-6 rounded-2xl border border-border bg-card shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h3 className="text-lg font-semibold tracking-tight">Evolução do Faturamento</h3>
-                <p className="text-sm text-muted-foreground">Desempenho hora a hora vs Meta Projetada</p>
-              </div>
-              {isPending && (
-                <span className="flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-success opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-success"></span>
-                </span>
-              )}
-            </div>
-            <TrendChart points={activeChannel.trendPoints} />
+          <div className="lg:col-span-2 p-6 rounded-2xl border border-border bg-card shadow-sm flex flex-col">
+            <TrendChart points={activeChannel.trendPoints} isPending={isPending} />
           </div>
 
           {/* LEADERBOARD (Salespeople / Ads) */}
@@ -275,37 +263,18 @@ export function RealtimeDashboard({
         {/* PROFIT MARGIN CARD */}
         <ProfitMarginCard />
 
-        {/* BOTTOM ALERTS AND YOY */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* BOTTOM ALERTS */}
+        <div className="w-full">
           <div className="p-6 rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive-foreground shadow-sm">
              <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="w-5 h-5 text-destructive" />
               <h3 className="text-lg font-semibold tracking-tight text-destructive">Fila de Atenção</h3>
             </div>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {snapshot.alerts.map(alert => (
-                <div key={alert.id} className="p-3 bg-background border border-destructive/10 rounded-lg flex flex-col gap-1">
-                  <span className="text-sm font-semibold text-foreground">{alert.title}</span>
+                <div key={alert.id} className="p-4 bg-background border border-destructive/10 rounded-xl flex flex-col gap-1 shadow-sm transition-all hover:-translate-y-1">
+                  <span className="text-sm font-bold text-foreground">{alert.title}</span>
                   <span className="text-xs text-muted-foreground">{alert.message}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl border border-border bg-card shadow-sm flex flex-col justify-center">
-             <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold tracking-tight">Crescimento Ano Contra Ano (YoY)</h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {snapshot.yearOverYear.map(yoy => (
-                <div key={yoy.id} className="p-4 rounded-xl border border-border bg-muted/30">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">{yoy.label}</p>
-                  <div className="flex items-end gap-2 mb-2">
-                    <span className="text-2xl font-bold">{yoy.currentValue}</span>
-                    <span className="text-success text-sm font-semibold mb-1">+{yoy.deltaPercent}%</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">vs {yoy.previousValue} (Ano anterior)</p>
                 </div>
               ))}
             </div>

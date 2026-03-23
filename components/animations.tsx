@@ -69,30 +69,20 @@ export function DashboardAnimation() {
         <path d="M0,40 Q400,25 800,35 T1440,30 L1440,60 L0,60Z" fill="var(--western-leather)" opacity="0.08" />
       </svg>
 
-      {/* Tumbleweed rolling across */}
+      {/* Tumbleweed rolling across (first 10s of the 20s cycle) */}
       <div
         className="absolute bottom-6"
         style={{ animation: "tumbleweed 20s linear infinite" }}
       >
         <div style={{ animation: "tumbleweed-bounce 1.3s ease-in-out infinite" }}>
-          <TumbleweedSvg size={38} />
+          <TumbleweedSvg size={44} />
         </div>
       </div>
 
-      {/* Second tumbleweed (delayed, smaller) */}
-      <div
-        className="absolute bottom-10"
-        style={{ animation: "tumbleweed 28s linear 10s infinite" }}
-      >
-        <div style={{ animation: "tumbleweed-bounce 1.6s ease-in-out infinite" }}>
-          <TumbleweedSvg size={24} />
-        </div>
-      </div>
-
-      {/* Horse silhouette galloping */}
+      {/* Horse silhouette galloping (second 10s of the 20s cycle) */}
       <div
         className="absolute bottom-4"
-        style={{ animation: "horse-gallop 22s linear 5s infinite" }}
+        style={{ animation: "horse-gallop 20s linear infinite" }}
       >
         <HorseSvg />
       </div>
@@ -141,15 +131,7 @@ export function HomeDesertScene() {
         }}
       />
 
-      {/* Faint sun glow in top-right */}
-      <div
-        className="absolute top-[3%] right-[8%] w-40 h-40 rounded-full"
-        style={{
-          background: "radial-gradient(circle, var(--western-gold) 0%, transparent 70%)",
-          opacity: 0.04,
-          animation: "sunset-pulse 6s ease-in-out infinite",
-        }}
-      />
+      {/* Removed faint sun glow in top-right as requested */}
 
       {/* Twinkling stars (very subtle) */}
       {[
