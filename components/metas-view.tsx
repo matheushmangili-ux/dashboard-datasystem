@@ -184,7 +184,7 @@ function DepartmentChart({ sellers }: { sellers: Seller[] }) {
               fontSize: "12px",
               fontWeight: "bold",
             }}
-            formatter={(value: number, name: string) => [name === "Atingimento" ? `${value}%` : value, name]}
+            formatter={(value: any, name: any) => [name === "Atingimento" ? `${value}%` : value, name]}
           />
           <Legend wrapperStyle={{ fontSize: "12px", fontWeight: "bold" }} />
           <Bar dataKey="Atingimento" fill="var(--primary)" radius={[6, 6, 0, 0]} animationDuration={1200} />
