@@ -5,12 +5,12 @@ import type { LucideIcon } from "lucide-react";
 import { 
   LayoutDashboard, Users, Target, PieChart, Store, 
   ShoppingCart, Settings, ChevronDown, Activity, TextSearch, 
-  MessageSquare, Briefcase, Package, TrendingUp, Calculator
+  MessageSquare, Briefcase, Package, TrendingUp, Calculator, Truck
 } from "lucide-react";
 
 export type SidebarView = 
   | "dashboard" | "vendedores" | "metas" | "indicadores" | "fisica" 
-  | "ecommerce" | "cadastros" | "admin"
+  | "ecommerce" | "cadastros" | "admin" | "melhor-envio"
   | "ecommerce-resultados" | "ecommerce-trafego" | "ecommerce-seo"
   | "ecommerce-atendimento" | "ecommerce-clientes" | "ecommerce-produtos";
 
@@ -75,6 +75,12 @@ const MENU_SECTIONS: MenuSection[] = [
           { id: "ecommerce-produtos", label: "Produtos", icon: Package, tooltip: "O inventário do armazém" },
         ]
       },
+    ],
+  },
+  {
+    title: "Logistica",
+    items: [
+      { id: "melhor-envio", label: "Calcular Frete", icon: Truck, tooltip: "Simule fretes pelo Melhor Envio" },
     ],
   },
   {

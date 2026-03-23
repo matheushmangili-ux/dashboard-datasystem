@@ -10,6 +10,7 @@ import { IndicadoresView } from "@/components/indicadores-view";
 import { EcommerceView } from "@/components/ecommerce-view";
 import { FisicaView } from "@/components/fisica-view";
 import { MetasView } from "@/components/metas-view";
+import { MelhorEnvioView } from "@/components/melhor-envio-view";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
@@ -55,6 +56,8 @@ export function AppWorkspace({
           <FisicaView />
         ) : view === "metas" ? (
           <MetasView data={metasData} />
+        ) : view === "melhor-envio" ? (
+          <MelhorEnvioView />
         ) : (
           <div className="flex-1">
             {/* Outras telas (vendedores, metas) podem renderizar views especificas,

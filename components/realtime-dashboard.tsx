@@ -9,6 +9,7 @@ import { SalesTeamPanel } from "@/components/sales-team-panel";
 import { TrendChart } from "@/components/trend-chart";
 import { DashboardAnimation, HomeDesertScene } from "@/components/animations";
 import { DashboardClock } from "@/components/dashboard-clock";
+import { ProfitMarginCard } from "@/components/profit-margin-card";
 import { getRoleLabel } from "@/lib/auth/demo-users";
 import type { AuthUser } from "@/lib/auth/types";
 import type { DashboardSnapshot, SalesChannelId } from "@/lib/types";
@@ -270,6 +271,9 @@ export function RealtimeDashboard({
             </div>
           </div>
         </div>
+
+        {/* PROFIT MARGIN CARD */}
+        <ProfitMarginCard />
 
         {/* BOTTOM ALERTS AND YOY */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
