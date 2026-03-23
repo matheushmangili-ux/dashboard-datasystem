@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState, useEffect, type FormEvent } from "react";
+import { useTransition, useState, useEffect, useRef, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signInAction, signOutAction } from "@/app/actions/auth";
 
@@ -8,6 +8,122 @@ import { AppWorkspace } from "@/components/app-workspace";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
+
+/* ---------- Cyber-Western background for login ---------- */
+function CyberWesternScene() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let particles: any[] = [];
+    let animationFrameId: number;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", resize);
+    resize();
+
+    for (let i = 0; i < 70; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        size: Math.random() * 2 + 1,
+      });
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(184, 115, 51, 0.8)";
+        ctx.fill();
+
+        for (let j = index + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(212, 160, 23, ${1 - dist/150})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      });
+      animationFrameId = requestAnimationFrame(render);
+    };
+    render();
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#f5deb3]/40 via-[#e8c89a]/30 to-[#c08050]/50" />
+      
+      <div
+        className="absolute top-[8%] right-[12%] w-28 h-28 rounded-full z-0"
+        style={{
+          background: "radial-gradient(circle, var(--western-gold) 0%, rgba(212,160,23,0.3) 55%, transparent 70%)",
+          animation: "sunset-pulse 4s ease-in-out infinite",
+        }}
+      />
+
+      <div 
+        className="absolute bottom-0 left-0 w-full h-[50%] opacity-20 z-0"
+        style={{
+          backgroundImage: "linear-gradient(rgba(184,115,51,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(184,115,51,0.5) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          transform: "perspective(600px) rotateX(70deg)",
+          transformOrigin: "bottom center"
+        }}
+      />
+
+      <svg className="absolute bottom-0 left-0 w-full z-0" viewBox="0 0 1440 320" preserveAspectRatio="none" style={{ height: "40%" }}>
+        <path d="M0,224 C180,140 360,260 540,200 C720,140 900,240 1080,180 C1260,120 1380,200 1440,160 L1440,320 L0,320Z" fill="var(--western-rust)" opacity="0.2" />
+        <path d="M0,260 C200,200 400,280 600,240 C800,200 1000,270 1200,230 C1320,210 1400,250 1440,240 L1440,320 L0,320Z" fill="var(--western-leather)" opacity="0.15" />
+      </svg>
+
+      <canvas ref={canvasRef} className="absolute inset-0 z-10" />
+
+      <div
+        className="absolute bottom-[18%] z-10"
+        style={{ animation: "tumbleweed 20s linear infinite" }}
+      >
+        <div style={{ animation: "tumbleweed-bounce 1.2s ease-in-out infinite" }}>
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="16" stroke="var(--western-gold)" strokeWidth="2" opacity="0.8" style={{ filter: "drop-shadow(0 0 4px var(--western-gold))" }} />
+            <circle cx="20" cy="20" r="10" stroke="var(--western-gold)" strokeWidth="1.5" opacity="0.6" />
+            <line x1="4" y1="20" x2="36" y2="20" stroke="var(--western-gold)" strokeWidth="1.5" opacity="0.5" />
+            <line x1="20" y1="4" x2="20" y2="36" stroke="var(--western-gold)" strokeWidth="1.5" opacity="0.5" />
+            <line x1="8" y1="8" x2="32" y2="32" stroke="var(--western-gold)" strokeWidth="1.5" opacity="0.4" />
+            <line x1="32" y1="8" x2="8" y2="32" stroke="var(--western-gold)" strokeWidth="1.5" opacity="0.4" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ---------- animated desert background for login ---------- */
 function LoginDesertScene() {
@@ -143,8 +259,8 @@ function LoginScreen() {
 
   return (
     <main className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans relative overflow-hidden bg-gradient-to-b from-background via-background to-[var(--western-sand)]/20">
-      {/* Animated desert background */}
-      <LoginDesertScene />
+      {/* Cyber-Western animated background */}
+      <CyberWesternScene />
 
       <div className="relative z-10 w-full">
         <div className="sm:mx-auto sm:w-full sm:max-w-md" style={{ animation: "western-fade-in 0.6s ease-out" }}>
