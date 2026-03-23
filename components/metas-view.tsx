@@ -93,7 +93,7 @@ function GrowthAnimation({ growthPercent, isVisible }: { growthPercent: number; 
         {isPositive ? "+" : ""}{animatedValue.toFixed(1)}%
       </div>
       <p className="text-xs text-muted-foreground mt-1">
-        Comparado ao mesmo periodo em {new Date().getFullYear() - 1}
+        Comparado ao mesmo período em {new Date().getFullYear() - 1}
       </p>
 
       {/* Animated bar behind */}
@@ -248,7 +248,7 @@ export function MetasView() {
           <h1 className="text-3xl font-extrabold font-heading tracking-tight">Metas da Loja</h1>
         </div>
         <p className="text-muted-foreground mt-1 text-sm font-medium">
-          Cadastre as metas mensais e acompanhe o crescimento em relacao ao ano anterior.
+          Cadastre as metas mensais e acompanhe o crescimento em relação ao ano anterior.
         </p>
       </header>
 
@@ -258,13 +258,13 @@ export function MetasView() {
           <div className="bg-card border border-border rounded-2xl shadow-sm p-6 mb-6">
             <h2 className="text-lg font-bold font-heading tracking-tight mb-5 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              Configuracao da Meta
+              Configuração da Meta
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Month selector */}
               <div>
-                <label className="block text-sm font-bold mb-1.5 text-foreground">Mes de Referencia</label>
+                <label className="block text-sm font-bold mb-1.5 text-foreground">Mês de Referência</label>
                 <div className="relative">
                   <select
                     value={selectedMonth}
@@ -320,7 +320,7 @@ export function MetasView() {
                 <BarChart3 className="w-5 h-5 text-[var(--western-gold)]" />
                 <div>
                   <span className="text-xs font-bold uppercase text-muted-foreground">
-                    Referencia {selectedMonth} {new Date().getFullYear() - 1}:
+                    Referência {selectedMonth} {new Date().getFullYear() - 1}:
                   </span>
                   <span className="text-sm font-bold ml-2 text-foreground">{formatCurrency(lastYear.total)}</span>
                 </div>
@@ -334,7 +334,7 @@ export function MetasView() {
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold font-heading tracking-tight flex items-center gap-2">
                   <Percent className="w-5 h-5 text-primary" />
-                  Distribuicao Semanal
+                  Distribuição Semanal
                 </h2>
                 <div className={`px-3 py-1 rounded-full text-xs font-bold ${isPercentValid ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
                   Total: {totalPercent}%

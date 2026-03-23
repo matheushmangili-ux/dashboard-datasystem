@@ -195,7 +195,7 @@ export function MelhorEnvioView() {
 
               {/* Dimensions */}
               <div className="mb-6">
-                <label className="block text-xs font-bold mb-3 text-foreground uppercase tracking-wider">Dimensoes (cm)</label>
+                <label className="block text-xs font-bold mb-3 text-foreground uppercase tracking-wider">Dimensões (cm)</label>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-[10px] text-muted-foreground font-bold uppercase">Altura</label>
@@ -311,7 +311,7 @@ export function MelhorEnvioView() {
                 {/* Sort controls */}
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-bold font-heading tracking-tight">
-                    {quotes.length} opcoes encontradas
+                    {quotes.length} opções encontradas
                   </h3>
                   <div className="flex bg-muted p-1 rounded-lg border border-border">
                     <button
@@ -383,7 +383,7 @@ export function MelhorEnvioView() {
 
                 {/* Disclaimer */}
                 <p className="text-[10px] text-muted-foreground/60 text-center mt-4 italic">
-                  * Valores simulados. Para cotacoes em tempo real, integre sua chave API do Melhor Envio.
+                  * Valores simulados. Para cotações em tempo real, integre sua chave API do Melhor Envio.
                 </p>
               </div>
             )}
