@@ -54,6 +54,7 @@ function GrowthAnimation({ growthPercent, isVisible }: { growthPercent: number; 
     const target = growthPercent;
     const duration = 1500;
     const startTime = Date.now();
+    let rafId: number;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -62,12 +63,13 @@ function GrowthAnimation({ growthPercent, isVisible }: { growthPercent: number; 
       start = target * eased;
       setAnimatedValue(start);
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
       } else {
         setShowSparkle(true);
       }
     };
-    requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [growthPercent, isVisible]);
 
   const isPositive = growthPercent >= 0;

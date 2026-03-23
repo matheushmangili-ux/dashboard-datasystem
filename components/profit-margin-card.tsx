@@ -128,6 +128,7 @@ export function ProfitMarginCard({ margin: propMargin }: ProfitMarginCardProps) 
     setMounted(true);
     const duration = 2000;
     const startTime = Date.now();
+    let rafId: number;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -135,10 +136,11 @@ export function ProfitMarginCard({ margin: propMargin }: ProfitMarginCardProps) 
       const eased = 1 - Math.pow(1 - progress, 4);
       setAnimatedMargin(margin * eased);
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
       }
     };
-    requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [margin]);
 
   // Determine status
@@ -182,15 +184,15 @@ export function ProfitMarginCard({ margin: propMargin }: ProfitMarginCardProps) 
           <div className="mt-4 w-full">
             <div className="flex justify-between text-[10px] font-bold text-muted-foreground mb-1.5">
               <span>0%</span>
-              <span className="text-destructive">54%</span>
+              <span className="text-destructive">55%</span>
               <span className="text-[var(--western-gold)]">60%</span>
               <span className="text-success">100%</span>
             </div>
             <div className="relative w-full h-3 bg-black/5 rounded-full overflow-hidden">
               {/* Zone indicators */}
               <div className="absolute inset-0 flex">
-                <div className="h-full bg-destructive/10" style={{ width: "54%" }} />
-                <div className="h-full bg-[var(--western-gold)]/10" style={{ width: "6%" }} />
+                <div className="h-full bg-destructive/10" style={{ width: "55%" }} />
+                <div className="h-full bg-[var(--western-gold)]/10" style={{ width: "5%" }} />
                 <div className="h-full bg-success/10" style={{ width: "40%" }} />
               </div>
               {/* Actual progress */}
