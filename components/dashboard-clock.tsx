@@ -32,9 +32,10 @@ function formatDateTime(date: Date) {
 }
 
 export function DashboardClock() {
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const intervalId = window.setInterval(() => {
       setNow(new Date());
     }, 1000);
@@ -42,7 +43,10 @@ export function DashboardClock() {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  const { dateLabel, timeLabel } = useMemo(() => formatDateTime(now), [now]);
+  const { dateLabel, timeLabel } = useMemo(
+    () => (now ? formatDateTime(now) : { dateLabel: "", timeLabel: "--:--:--" }),
+    [now]
+  );
 
   return (
     <div className="inline-flex flex-col items-center gap-1">

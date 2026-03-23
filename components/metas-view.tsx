@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Target, Calendar, TrendingUp, ChevronDown, Percent, BarChart3, Sparkles, Building2, Users } from "lucide-react";
+import {
+  Target, Calendar, TrendingUp, ChevronDown, Store, Users,
+  BarChart3, Award, Building2, Flame, ArrowUpRight, ArrowDownRight,
+} from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
-  AreaChart, Area, Legend
+  Legend, RadialBarChart, RadialBar,
 } from "recharts";
 
 /* ───── Types ───── */
-interface WeekGoal {
-  week: number;
-  label: string;
-  value: number;
-  percent: number;
-}
-
 interface Seller {
   id: string;
   nome: string;
@@ -23,122 +19,163 @@ interface Seller {
   canal: string;
 }
 
-/* ───── Mock data for last year's revenue ───── */
-const LAST_YEAR_MONTHLY: Record<string, { total: number; weeks: number[] }> = {
-  "Janeiro": { total: 120000, weeks: [28000, 30000, 32000, 30000] },
-  // ... omitting some for brevity to keep file clean, but let's just keep the original structure
-  "Fevereiro": { total: 110000, weeks: [26000, 28000, 29000, 27000] },
-  "Marco": { total: 135000, weeks: [32000, 34000, 35000, 34000] },
-  "Abril": { total: 125000, weeks: [30000, 31000, 33000, 31000] },
-  "Maio": { total: 140000, weeks: [33000, 35000, 37000, 35000] },
-  "Junho": { total: 115000, weeks: [27000, 29000, 30000, 29000] },
-  "Julho": { total: 130000, weeks: [31000, 33000, 34000, 32000] },
-  "Agosto": { total: 145000, weeks: [34000, 36000, 38000, 37000] },
-  "Setembro": { total: 150000, weeks: [35000, 38000, 39000, 38000] },
-  "Outubro": { total: 160000, weeks: [38000, 40000, 42000, 40000] },
-  "Novembro": { total: 180000, weeks: [42000, 45000, 48000, 45000] },
-  "Dezembro": { total: 200000, weeks: [47000, 50000, 53000, 50000] },
-};
+interface StoreMeta {
+  id: string;
+  name: string;
+  canal: string;
+  metaTotal: number;
+  realizado: number;
+}
+
+/* ───── Mock stores performance ───── */
+const MOCK_STORES: StoreMeta[] = [
+  { id: "1", name: "Loja Física Principal", canal: "Loja Fisica", metaTotal: 180000, realizado: 142560 },
+  { id: "2", name: "E-commerce (Tray)", canal: "E-commerce (Tray)", metaTotal: 85000, realizado: 71400 },
+  { id: "3", name: "Venda Corporativa / B2B", canal: "Venda Corporativa / B2B", metaTotal: 45000, realizado: 28350 },
+];
+
+/* ───── Mock seller performance (seeded from localStorage names) ───── */
+function generateSellerPerformance(sellers: Seller[]): { seller: Seller; meta: number; realizado: number; percent: number }[] {
+  // Deterministic "random" based on seller name length
+  return sellers.map((s) => {
+    const seed = s.nome.length * 7 + s.departamento.length * 3;
+    const meta = 15000 + (seed % 10) * 2000;
+    const percent = 45 + (seed % 55);
+    const realizado = Math.round((meta * percent) / 100);
+    return { seller: s, meta, realizado, percent };
+  });
+}
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-const DEFAULT_WEEK_PERCENTS = [22, 25, 28, 25];
-
 const DEPARTMENTS = ["Vestuário", "Chapelaria", "Selaria", "Calçados", "Geral / Outros"];
-const DEFAULT_DEPT_PERCENTS = [40, 20, 15, 15, 10];
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 }
 
-/* ───── Animated growth indicator ───── */
-function GrowthAnimation({ growthPercent, isVisible }: { growthPercent: number; isVisible: boolean }) {
-  const [animatedValue, setAnimatedValue] = useState(0);
-  const [showSparkle, setShowSparkle] = useState(false);
+/* ───── Radial gauge for store ───── */
+function StoreGauge({ store }: { store: StoreMeta }) {
+  const percent = store.metaTotal > 0 ? Math.round((store.realizado / store.metaTotal) * 100) : 0;
+  const isGood = percent >= 70;
+  const isMid = percent >= 40 && percent < 70;
 
-  useEffect(() => {
-    if (!isVisible) { setAnimatedValue(0); return; }
-    setShowSparkle(false);
-    let start = 0;
-    const target = growthPercent;
-    const duration = 1500;
-    const startTime = Date.now();
-    let rafId: number;
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      start = target * eased;
-      setAnimatedValue(start);
-      if (progress < 1) {
-        rafId = requestAnimationFrame(animate);
-      } else {
-        setShowSparkle(true);
-      }
-    };
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, [growthPercent, isVisible]);
-
-  const isPositive = growthPercent >= 0;
-  const color = isPositive ? "text-success" : "text-destructive";
-  const bgColor = isPositive ? "bg-success/10 border-success/20" : "bg-destructive/10 border-destructive/20";
+  const data = [{ name: store.name, value: percent, fill: isGood ? "var(--success)" : isMid ? "var(--western-gold)" : "var(--destructive)" }];
 
   return (
-    <div className={`relative p-6 rounded-2xl border ${bgColor} transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-      <div className="flex items-center gap-3 mb-2">
-        <div className="relative">
-          <TrendingUp className={`w-6 h-6 ${color} ${isPositive ? "" : "rotate-180"}`} />
-          {showSparkle && (
-            <Sparkles className="w-4 h-4 text-[var(--western-gold)] absolute -top-2 -right-2 animate-pulse" />
-          )}
-        </div>
-        <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Crescimento vs Ano Anterior
-        </span>
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group">
+      <div className="flex items-center gap-2 mb-3">
+        <Store className="w-4 h-4 text-primary" />
+        <span className="text-sm font-bold text-foreground truncate">{store.name}</span>
       </div>
-      <div className={`text-4xl font-black font-heading ${color} tabular-nums`}>
-        {isPositive ? "+" : ""}{animatedValue.toFixed(1)}%
-      </div>
-      <p className="text-xs text-muted-foreground mt-1">
-        Comparado ao mesmo período em {new Date().getFullYear() - 1}
-      </p>
 
-      {/* Animated bar behind */}
-      <div className="absolute bottom-0 left-0 right-0 h-1.5 rounded-b-2xl overflow-hidden bg-black/5">
-        <div
-          className={`h-full rounded-b-2xl transition-all duration-[1500ms] ease-out ${isPositive ? "bg-success/40" : "bg-destructive/40"}`}
-          style={{ width: `${Math.min(Math.abs(animatedValue), 100)}%` }}
-        />
+      <div className="h-[130px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" barSize={12} data={data} startAngle={180} endAngle={0}>
+            <RadialBar dataKey="value" cornerRadius={6} background={{ fill: "var(--muted)" }} />
+          </RadialBarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="text-center -mt-6 relative z-10">
+        <p className={`text-3xl font-black font-heading tabular-nums ${isGood ? "text-success" : isMid ? "text-[var(--western-gold)]" : "text-destructive"}`}>
+          {percent}%
+        </p>
+        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mt-1">Atingimento</p>
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-border/50 grid grid-cols-2 gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase text-muted-foreground">Meta</p>
+          <p className="text-xs font-mono font-bold text-foreground">{formatCurrency(store.metaTotal)}</p>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase text-muted-foreground">Realizado</p>
+          <p className="text-xs font-mono font-bold text-foreground">{formatCurrency(store.realizado)}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ───── Week comparison chart ───── */
-function WeekComparisonChart({ currentWeeks, lastYearWeeks }: { currentWeeks: WeekGoal[]; lastYearWeeks: number[] }) {
-  const data = currentWeeks.map((w, i) => ({
-    name: w.label,
-    "Meta Atual": w.value,
-    "Ano Anterior": lastYearWeeks[i] || 0,
-  }));
+/* ───── Seller performance row ───── */
+function SellerRow({ data, index }: { data: { seller: Seller; meta: number; realizado: number; percent: number }; index: number }) {
+  const isGood = data.percent >= 70;
+  const isMid = data.percent >= 40 && data.percent < 70;
+  const color = isGood ? "text-success" : isMid ? "text-[var(--western-gold)]" : "text-destructive";
+  const barColor = isGood ? "bg-success" : isMid ? "bg-[var(--western-gold)]" : "bg-destructive";
+  const bgColor = isGood ? "bg-success/5" : isMid ? "bg-[var(--western-gold)]/5" : "bg-destructive/5";
 
   return (
-    <div className="h-[280px] w-full">
+    <div
+      className={`flex items-center gap-4 p-4 rounded-xl border border-border/60 ${bgColor} hover:border-primary/30 transition-all animate-in fade-in slide-in-from-bottom-2`}
+      style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both" }}
+    >
+      {/* Rank */}
+      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-sm font-black text-muted-foreground shrink-0">
+        {index + 1}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-sm text-foreground truncate">{data.seller.nome}</p>
+        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wide">
+          {data.seller.departamento} • {data.seller.canal?.split(" ")[0] || "—"}
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      <div className="flex-1 max-w-[200px] hidden md:block">
+        <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full ${barColor} transition-all duration-1000 ease-out`}
+            style={{ width: `${Math.min(data.percent, 100)}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Values */}
+      <div className="text-right shrink-0">
+        <p className={`text-lg font-black font-heading tabular-nums ${color}`}>
+          {data.percent}%
+        </p>
+        <p className="text-[10px] text-muted-foreground font-mono">
+          {formatCurrency(data.realizado)} / {formatCurrency(data.meta)}
+        </p>
+      </div>
+
+      {/* Arrow */}
+      <div className="shrink-0">
+        {data.percent >= 70 ? (
+          <ArrowUpRight className="w-4 h-4 text-success" />
+        ) : (
+          <ArrowDownRight className="w-4 h-4 text-destructive" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ───── Department bar chart ───── */
+function DepartmentChart({ sellers }: { sellers: Seller[] }) {
+  const data = DEPARTMENTS.map((dept) => {
+    const deptSellers = sellers.filter((s) => s.departamento === dept);
+    const count = deptSellers.length;
+    const seed = dept.length * 13;
+    const percent = count > 0 ? 35 + (seed % 60) : 0;
+    return { name: dept.length > 10 ? dept.slice(0, 10) + "…" : dept, Atingimento: percent, Vendedores: count };
+  });
+
+  return (
+    <div className="h-[260px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} barGap={4}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-          <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={12} />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            fontSize={11}
-            tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`}
-          />
+          <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} />
+          <YAxis tickLine={false} axisLine={false} fontSize={11} tickFormatter={(v: number) => `${v}%`} domain={[0, 100]} />
           <Tooltip
             contentStyle={{
               borderRadius: "12px",
@@ -147,44 +184,11 @@ function WeekComparisonChart({ currentWeeks, lastYearWeeks }: { currentWeeks: We
               fontSize: "12px",
               fontWeight: "bold",
             }}
-            formatter={(value) => formatCurrency(Number(value))}
+            formatter={(value: number, name: string) => [name === "Atingimento" ? `${value}%` : value, name]}
           />
           <Legend wrapperStyle={{ fontSize: "12px", fontWeight: "bold" }} />
-          <Bar dataKey="Meta Atual" fill="var(--primary)" radius={[6, 6, 0, 0]} animationDuration={1200} />
-          <Bar dataKey="Ano Anterior" fill="var(--western-gold)" radius={[6, 6, 0, 0]} opacity={0.6} animationDuration={1200} animationBegin={300} />
+          <Bar dataKey="Atingimento" fill="var(--primary)" radius={[6, 6, 0, 0]} animationDuration={1200} />
         </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-/* ───── Monthly trend chart ───── */
-function MonthlyTrendChart({ selectedMonth, totalGoal }: { selectedMonth: string; totalGoal: number }) {
-  const data = MONTHS.map((m) => {
-    const ly = LAST_YEAR_MONTHLY[m];
-    return {
-      name: m.slice(0, 3),
-      "Ano Anterior": ly?.total || 0,
-      "Meta Atual": m === selectedMonth ? totalGoal : 0,
-    };
-  });
-
-  return (
-    <div className="h-[200px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
-          <defs>
-            <linearGradient id="colorLY" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--western-gold)" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="var(--western-gold)" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-          <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
-          <YAxis tickLine={false} axisLine={false} fontSize={10} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
-          <Tooltip contentStyle={{ borderRadius: "8px", border: "1px solid var(--border)", backgroundColor: "var(--card)", fontSize: "11px" }} formatter={(value) => formatCurrency(Number(value))} />
-          <Area type="monotone" dataKey="Ano Anterior" stroke="var(--western-gold)" fillOpacity={1} fill="url(#colorLY)" strokeWidth={2} animationDuration={2000} />
-        </AreaChart>
       </ResponsiveContainer>
     </div>
   );
@@ -197,13 +201,9 @@ function MonthlyTrendChart({ selectedMonth, totalGoal }: { selectedMonth: string
 export function MetasView() {
   const currentMonth = MONTHS[new Date().getMonth()];
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [totalGoal, setTotalGoal] = useState<number>(0);
-  const [weekPercents, setWeekPercents] = useState<number[]>([...DEFAULT_WEEK_PERCENTS]);
-  const [deptPercents, setDeptPercents] = useState<number[]>([...DEFAULT_DEPT_PERCENTS]);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showChart, setShowChart] = useState(false);
-  const [canal, setCanal] = useState<string>("Loja Fisica");
+  const [selectedCanal, setSelectedCanal] = useState<string>("Todos");
   const [sellers, setSellers] = useState<Seller[]>([]);
+  const [filterDept, setFilterDept] = useState<string>("Todos");
 
   useEffect(() => {
     const stored = localStorage.getItem("tc_sellers");
@@ -212,62 +212,32 @@ export function MetasView() {
         setSellers(JSON.parse(stored));
       } catch (e) {}
     }
-  }, [showChart]); // refetch when submitted
+  }, []);
 
-  const lastYear = LAST_YEAR_MONTHLY[selectedMonth] || { total: 0, weeks: [0, 0, 0, 0] };
+  const sellerPerformance = useMemo(() => {
+    let data = generateSellerPerformance(sellers);
+    if (filterDept !== "Todos") {
+      data = data.filter((d) => d.seller.departamento === filterDept);
+    }
+    if (selectedCanal !== "Todos") {
+      data = data.filter((d) => d.seller.canal?.includes(selectedCanal));
+    }
+    return data.sort((a, b) => b.percent - a.percent);
+  }, [sellers, filterDept, selectedCanal]);
 
-  const weeks: WeekGoal[] = useMemo(() => {
-    return weekPercents.map((pct, i) => ({
-      week: i + 1,
-      label: `Semana ${i + 1}`,
-      value: Math.round((totalGoal * pct) / 100),
-      percent: pct,
-    }));
-  }, [totalGoal, weekPercents]);
+  const filteredStores = useMemo(() => {
+    if (selectedCanal === "Todos") return MOCK_STORES;
+    return MOCK_STORES.filter((s) => s.canal.includes(selectedCanal));
+  }, [selectedCanal]);
 
-  const depts = useMemo(() => {
-    return DEPARTMENTS.map((name, i) => {
-      const pct = deptPercents[i] || 0;
-      const value = Math.round((totalGoal * pct) / 100);
-      const deptSellers = sellers.filter(s => s.departamento === name);
-      const sellerValue = deptSellers.length > 0 ? value / deptSellers.length : 0;
-      
-      return { 
-        name, 
-        percent: pct, 
-        value, 
-        sellers: deptSellers, 
-        sellerValue 
-      };
-    });
-  }, [totalGoal, deptPercents, sellers]);
-
-  const growthPercent = useMemo(() => {
-    if (!lastYear.total || !totalGoal) return 0;
-    return ((totalGoal - lastYear.total) / lastYear.total) * 100;
-  }, [totalGoal, lastYear.total]);
-
-  const totalWeekPercent = weekPercents.reduce((a, b) => a + b, 0);
-  const isWeekPercentValid = totalWeekPercent === 100;
-
-  const totalDeptPercent = deptPercents.reduce((a, b) => a + b, 0);
-  const isDeptPercentValid = totalDeptPercent === 100;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isWeekPercentValid || !isDeptPercentValid || totalGoal <= 0) return;
-    setIsSubmitted(true);
-    setShowChart(false);
-    setTimeout(() => setShowChart(true), 200);
-  };
-
-  const handleReset = () => {
-    setIsSubmitted(false);
-    setShowChart(false);
-    setTotalGoal(0);
-    setWeekPercents([...DEFAULT_WEEK_PERCENTS]);
-    setDeptPercents([...DEFAULT_DEPT_PERCENTS]);
-  };
+  /* Summary stats */
+  const totalMeta = MOCK_STORES.reduce((a, s) => a + s.metaTotal, 0);
+  const totalRealizado = MOCK_STORES.reduce((a, s) => a + s.realizado, 0);
+  const overallPercent = totalMeta > 0 ? Math.round((totalRealizado / totalMeta) * 100) : 0;
+  const avgSellerPercent = sellerPerformance.length > 0
+    ? Math.round(sellerPerformance.reduce((a, s) => a + s.percent, 0) / sellerPerformance.length)
+    : 0;
+  const topPerformer = sellerPerformance[0];
 
   return (
     <div className="flex-1 flex flex-col items-start w-full bg-background min-h-screen">
@@ -277,280 +247,161 @@ export function MetasView() {
           <h1 className="text-3xl font-extrabold font-heading tracking-tight">Metas da Loja</h1>
         </div>
         <p className="text-muted-foreground mt-1 text-sm font-medium">
-          Cadastre as metas mensais, distribua por departamentos e defina os alvos de cada vendedor.
+          Visualize o atingimento das metas por loja e por vendedor. Para configurar metas, acesse <b>Cadastros → Diretrizes de Metas</b>.
         </p>
       </header>
 
-      <div className="p-8 w-full max-w-[1200px] flex-1 animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <form onSubmit={handleSubmit}>
-          {/* Month + Channel + Total Goal */}
-          <div className="bg-card border border-border rounded-2xl shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-bold font-heading tracking-tight mb-5 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Configuração Global da Meta
-            </h2>
+      <div className="p-8 w-full max-w-[1400px] flex-1 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        {/* ── Filters ── */}
+        <div className="bg-card border border-border rounded-2xl shadow-sm p-5 mb-6 flex flex-col md:flex-row items-start md:items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-primary" />
+            <span className="text-sm font-bold text-foreground">Filtros</span>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div>
-                <label className="block text-sm font-bold mb-1.5 text-foreground">Mês de Referência</label>
-                <div className="relative">
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => { setSelectedMonth(e.target.value); setIsSubmitted(false); setShowChart(false); }}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none cursor-pointer appearance-none"
-                  >
-                    {MONTHS.map((m) => (
-                      <option key={m} value={m}>{m} {new Date().getFullYear()}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold mb-1.5 text-foreground">Canal da Meta</label>
-                <div className="relative">
-                  <select
-                    value={canal}
-                    onChange={(e) => setCanal(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none cursor-pointer appearance-none"
-                  >
-                    <option>Loja Fisica</option>
-                    <option>Consolidado Global</option>
-                    <option>E-commerce (Tray)</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold mb-1.5 text-foreground">Meta Total do Mês</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-2.5 text-muted-foreground font-bold">R$</span>
-                  <input
-                    type="number"
-                    placeholder="150.000"
-                    min="0"
-                    value={totalGoal || ""}
-                    onChange={(e) => { setTotalGoal(Number(e.target.value)); setIsSubmitted(false); setShowChart(false); }}
-                    required
-                    className="w-full pl-11 pr-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none font-mono font-medium"
-                  />
-                </div>
-              </div>
+          <div className="flex flex-wrap gap-4 flex-1">
+            <div className="relative min-w-[160px]">
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="w-full px-4 py-2 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none cursor-pointer appearance-none text-sm font-medium"
+              >
+                {MONTHS.map((m) => (
+                  <option key={m} value={m}>{m} {new Date().getFullYear()}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             </div>
 
-            {totalGoal > 0 && (
-              <div className="mt-4 p-3 bg-muted/30 rounded-xl border border-border/50 flex items-center gap-3 animate-in fade-in duration-300">
-                <BarChart3 className="w-5 h-5 text-[var(--western-gold)]" />
-                <div>
-                  <span className="text-xs font-bold uppercase text-muted-foreground">
-                    Referência {selectedMonth} {new Date().getFullYear() - 1}:
-                  </span>
-                  <span className="text-sm font-bold ml-2 text-foreground">{formatCurrency(lastYear.total)}</span>
+            <div className="relative min-w-[160px]">
+              <select
+                value={selectedCanal}
+                onChange={(e) => setSelectedCanal(e.target.value)}
+                className="w-full px-4 py-2 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none cursor-pointer appearance-none text-sm font-medium"
+              >
+                <option>Todos</option>
+                <option>Loja Fisica</option>
+                <option>E-commerce</option>
+                <option>Corporativa</option>
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
+
+            <div className="relative min-w-[160px]">
+              <select
+                value={filterDept}
+                onChange={(e) => setFilterDept(e.target.value)}
+                className="w-full px-4 py-2 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none cursor-pointer appearance-none text-sm font-medium"
+              >
+                <option>Todos</option>
+                {DEPARTMENTS.map((d) => (
+                  <option key={d}>{d}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Summary KPIs ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {[
+            {
+              label: "Meta Consolidada",
+              value: formatCurrency(totalMeta),
+              sub: selectedMonth + " " + new Date().getFullYear(),
+              icon: Target,
+              color: "text-primary",
+            },
+            {
+              label: "Total Realizado",
+              value: formatCurrency(totalRealizado),
+              sub: `${overallPercent}% da meta`,
+              icon: TrendingUp,
+              color: overallPercent >= 70 ? "text-success" : "text-[var(--western-gold)]",
+            },
+            {
+              label: "Média dos Vendedores",
+              value: `${avgSellerPercent}%`,
+              sub: `${sellerPerformance.length} vendedor(es)`,
+              icon: Users,
+              color: avgSellerPercent >= 70 ? "text-success" : "text-[var(--western-gold)]",
+            },
+            {
+              label: "Top Performer",
+              value: topPerformer ? `${topPerformer.percent}%` : "—",
+              sub: topPerformer?.seller.nome || "Cadastre vendedores",
+              icon: Award,
+              color: "text-[var(--western-gold)]",
+            },
+          ].map((kpi, i) => {
+            const Icon = kpi.icon;
+            return (
+              <div
+                key={i}
+                className="bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-2"
+                style={{ animationDelay: `${i * 80}ms`, animationFillMode: "both" }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon className={`w-4 h-4 ${kpi.color}`} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{kpi.label}</span>
                 </div>
+                <p className={`text-2xl font-black font-heading tabular-nums ${kpi.color}`}>{kpi.value}</p>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">{kpi.sub}</p>
               </div>
+            );
+          })}
+        </div>
+
+        {/* ── Performance por Loja ── */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Store className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold font-heading tracking-tight">Performance por Loja</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {filteredStores.map((store) => (
+              <StoreGauge key={store.id} store={store} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Performance por Departamento ── */}
+        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold font-heading tracking-tight">Atingimento por Departamento</h2>
+          </div>
+          <DepartmentChart sellers={sellers} />
+        </div>
+
+        {/* ── Performance por Vendedor ── */}
+        <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-border bg-muted/10 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-[var(--western-sunset)]" />
+              <h2 className="text-lg font-bold font-heading tracking-tight">Ranking de Vendedores</h2>
+            </div>
+            <span className="text-xs font-bold bg-muted px-3 py-1 rounded-full text-muted-foreground border border-border">
+              {sellerPerformance.length} vendedor(es)
+            </span>
+          </div>
+
+          <div className="p-6 space-y-3">
+            {sellerPerformance.length === 0 ? (
+              <div className="p-8 text-center rounded-xl border border-dashed border-border/80">
+                <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground font-medium">
+                  Nenhum vendedor cadastrado. Acesse <b>Cadastros → Vendedores</b> para adicionar sua equipe.
+                </p>
+              </div>
+            ) : (
+              sellerPerformance.map((data, i) => (
+                <SellerRow key={data.seller.id} data={data} index={i} />
+              ))
             )}
           </div>
-
-          {totalGoal > 0 && (
-            <>
-              {/* Department breakdown */}
-              <div className="bg-card border border-border rounded-2xl shadow-sm p-6 mb-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-lg font-bold font-heading tracking-tight flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-primary" />
-                    Pesos por Departamento
-                  </h2>
-                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${isDeptPercentValid ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-                    Total: {totalDeptPercent}% {!isDeptPercentValid && " (deve ser 100%)"}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                  {depts.map((d, i) => (
-                    <div key={i} className="p-4 bg-muted/20 border border-border/60 rounded-xl hover:border-primary/30 transition-colors">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-bold text-foreground truncate">{d.name}</span>
-                        <span className="text-xs font-mono text-muted-foreground bg-background px-2 py-0.5 rounded-md border border-border/50">
-                          {d.percent}%
-                        </span>
-                      </div>
-                      
-                      <div className="mb-3">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">Peso na Loja</label>
-                        <input
-                          type="range"
-                          min={0}
-                          max={100}
-                          value={deptPercents[i]}
-                          onChange={(e) => {
-                            const next = [...deptPercents];
-                            next[i] = Number(e.target.value);
-                            setDeptPercents(next);
-                          }}
-                          className="w-full h-2 rounded-full appearance-none cursor-pointer accent-primary"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground mb-1 block">Meta do Setor</label>
-                        <div className="text-sm font-mono font-bold text-primary bg-background border border-border rounded-lg px-3 py-1.5 overflow-hidden text-ellipsis">
-                          {formatCurrency(d.value)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Weekly breakdown */}
-              {/* Keeping weekly breakdown collapsed visually or minimalist since focus is on departments/sellers */}
-              <div className="bg-card border border-border rounded-2xl shadow-sm p-6 mb-6">
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-lg font-bold font-heading tracking-tight flex items-center gap-2">
-                    <Percent className="w-5 h-5 text-muted-foreground" />
-                    Distribuição Gráfica Semanal (Opcional)
-                  </h2>
-                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${isWeekPercentValid ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-                    Total: {totalWeekPercent}%
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-70 hover:opacity-100 transition-opacity">
-                  {weeks.map((week, i) => (
-                    <div key={i} className="flex gap-2 items-center">
-                       <span className="text-xs font-bold w-16">{week.label}</span>
-                       <input 
-                         type="number" min="0" max="100" 
-                         value={weekPercents[i]} 
-                         onChange={(e) => {
-                            const next = [...weekPercents];
-                            next[i] = Number(e.target.value);
-                            setWeekPercents(next);
-                         }}
-                         className="flex-1 w-full px-2 py-1 text-xs bg-background border border-border rounded"
-                       />
-                       <span className="text-xs text-muted-foreground">%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Submit */}
-              <div className="mb-8 flex flex-col sm:flex-row items-center gap-4">
-                <button
-                  type="submit"
-                  disabled={!isWeekPercentValid || !isDeptPercentValid || totalGoal <= 0}
-                  className="bg-primary text-primary-foreground font-bold py-3 px-8 rounded-xl hover:opacity-90 flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-md disabled:opacity-40 disabled:cursor-not-allowed w-full md:w-auto"
-                >
-                  <Target className="w-5 h-5" />
-                  Calcular Metas e Distribuir Equipe
-                </button>
-
-                {isSubmitted && (
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="text-sm text-destructive hover:text-destructive/80 font-medium transition-colors"
-                  >
-                    Resetar Planejamento
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-        </form>
-
-        {/* ═══ Distributed Goals (shown after submit) ═══ */}
-        {isSubmitted && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Dept/Seller Allocation Area */}
-            <div className={`bg-card border border-border rounded-2xl shadow-sm overflow-hidden transition-all duration-700 ${showChart ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              <div className="p-6 border-b border-border bg-muted/10">
-                <h3 className="text-xl font-bold font-heading tracking-tight flex items-center gap-2">
-                  <Users className="w-6 h-6 text-primary" />
-                  Meta Individual dos Vendedores
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">Valores calculados automaticamente pelo peso de cada departamento e divididos entre os vendedores cadastrados no setor.</p>
-              </div>
-
-              <div className="p-6">
-                {depts.map((d, i) => (
-                  <div key={i} className="mb-8 last:mb-0">
-                    <div className="flex items-center justify-between mb-4 border-b border-border/60 pb-2">
-                      <div className="flex items-center gap-2">
-                         <span className="w-3 h-3 rounded-full bg-primary/20 ring-2 ring-primary"></span>
-                         <h4 className="font-bold text-lg">{d.name}</h4>
-                         <span className="text-sm font-mono bg-muted px-2 py-0.5 rounded-md ml-2 border border-border">{d.percent}%</span>
-                      </div>
-                      <span className="font-bold text-foreground text-lg">{formatCurrency(d.value)}</span>
-                    </div>
-
-                    {d.sellers.length === 0 ? (
-                      <div className="p-4 rounded-xl border border-dashed border-border/80 bg-background text-center text-sm text-muted-foreground">
-                        Nenhum vendedor cadastrado neste departamento. Vá em <span className="font-bold text-foreground">Vendedores</span> para adicionar.
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {d.sellers.map(s => (
-                          <div key={s.id} className="p-4 bg-background border border-border/80 rounded-xl shadow-sm flex flex-col">
-                            <div className="flex items-center gap-3 mb-4">
-                              <img 
-                                src={s.foto || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + s.nome} 
-                                alt={s.nome} 
-                                className="w-12 h-12 rounded-full border border-border/50 bg-muted object-cover" 
-                              />
-                              <div>
-                                <p className="font-bold text-sm truncate">{s.nome}</p>
-                                <p className="text-[10px] uppercase font-bold text-muted-foreground">Meta Sugerida</p>
-                              </div>
-                            </div>
-                            <div className="mt-auto relative">
-                              <span className="absolute left-3 top-2 text-muted-foreground text-xs font-bold">R$</span>
-                              <input 
-                                type="number" 
-                                defaultValue={Math.round(d.sellerValue)}
-                                className="w-full pl-9 pr-3 py-2 text-lg font-mono font-bold bg-muted/20 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all"
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-                
-                <div className="mt-6 pt-6 border-t border-border flex justify-end">
-                   <button onClick={() => alert("Metas individuais salvas no ERP!")} className="bg-foreground text-background font-bold py-2.5 px-6 rounded-xl hover:opacity-90 transition-opacity">
-                     Salvar Metas Individuais
-                   </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Growth percentage card */}
-            <GrowthAnimation growthPercent={growthPercent} isVisible={showChart} />
-
-            {/* Weekly comparison chart */}
-            <div className={`bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-700 delay-300 ${showChart ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              <h3 className="text-lg font-bold font-heading tracking-tight mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-primary" />
-                Comparativo Semanal projetado: Meta vs Ano Anterior
-              </h3>
-              <WeekComparisonChart currentWeeks={weeks} lastYearWeeks={lastYear.weeks} />
-            </div>
-
-            {/* Monthly overview */}
-            <div className={`bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-700 delay-500 ${showChart ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              <h3 className="text-lg font-bold font-heading tracking-tight mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[var(--western-gold)]" />
-                Panorama Anual - Faturamento {new Date().getFullYear() - 1}
-              </h3>
-              <MonthlyTrendChart selectedMonth={selectedMonth} totalGoal={totalGoal} />
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
