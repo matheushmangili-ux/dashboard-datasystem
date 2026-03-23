@@ -204,3 +204,66 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--muted-foreground);
 }
+
+/* ===== COWBOY ANIMATIONS ===== */
+
+.cowboy-container {
+  animation: cowboy-idle 3s ease-in-out infinite;
+}
+
+.cowboy-svg .cowboy-hat {
+  animation: cowboy-hat-bob 4s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.cowboy-svg .cowboy-eyes {
+  animation: cowboy-blink 4s ease-in-out infinite;
+}
+
+.cowboy-svg .cowboy-mouth {
+  animation: cowboy-mouth-move 3s ease-in-out infinite;
+}
+
+.cowboy-svg .cowboy-tear {
+  animation: cowboy-tear-drop 2.5s ease-in-out infinite;
+}
+
+.cowboy-svg .cowboy-sparkles {
+  animation: cowboy-sparkle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes cowboy-idle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-1deg); }
+  50% { transform: translateY(-2px) rotate(0deg); }
+  75% { transform: translateY(-5px) rotate(1deg); }
+}
+
+@keyframes cowboy-hat-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-2px) rotate(-2deg); }
+  70% { transform: translateY(-1px) rotate(2deg); }
+}
+
+@keyframes cowboy-blink {
+  0%, 42%, 44%, 100% { opacity: 1; }
+  43% { opacity: 0.1; }
+}
+
+@keyframes cowboy-mouth-move {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1px); }
+}
+
+@keyframes cowboy-tear-drop {
+  0% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(6px); opacity: 0; }
+  51% { transform: translateY(0); opacity: 0; }
+  70% { opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 0.7; }
+}
+
+@keyframes cowboy-sparkle-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
