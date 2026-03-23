@@ -8,6 +8,7 @@ import { AppWorkspace } from "@/components/app-workspace";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
+import type { SpreadsheetData } from "@/lib/spreadsheet/parse-metas";
 
 /* ---------- animated desert background for login ---------- */
 function LoginDesertScene() {
@@ -236,11 +237,13 @@ function LoginScreen() {
 export function AccessShell({
   initialSnapshot,
   readiness,
-  initialUser
+  initialUser,
+  metasData
 }: {
   initialSnapshot: DashboardSnapshot;
   readiness: IntegrationReadiness;
   initialUser: AuthUser | null;
+  metasData: SpreadsheetData;
 }) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -262,6 +265,7 @@ export function AccessShell({
       initialSnapshot={initialSnapshot}
       onSignOut={handleSignOut}
       readiness={readiness}
+      metasData={metasData}
     />
   );
 }

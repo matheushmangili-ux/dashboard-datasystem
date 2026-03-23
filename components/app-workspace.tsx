@@ -14,17 +14,20 @@ import { MelhorEnvioView } from "@/components/melhor-envio-view";
 import type { AuthUser } from "@/lib/auth/types";
 import type { IntegrationReadiness } from "@/lib/erp/contracts";
 import type { DashboardSnapshot } from "@/lib/types";
+import type { SpreadsheetData } from "@/lib/spreadsheet/parse-metas";
 
 export function AppWorkspace({
   currentUser,
   initialSnapshot,
   onSignOut,
-  readiness
+  readiness,
+  metasData
 }: {
   currentUser: AuthUser;
   initialSnapshot: DashboardSnapshot;
   onSignOut: () => void;
   readiness: IntegrationReadiness;
+  metasData: SpreadsheetData;
 }) {
   const [view, setView] = useState<SidebarView>("dashboard");
 
@@ -52,7 +55,7 @@ export function AppWorkspace({
         ) : view === "fisica" ? (
           <FisicaView />
         ) : view === "metas" ? (
-          <MetasView />
+          <MetasView data={metasData} />
         ) : view === "melhor-envio" ? (
           <MelhorEnvioView />
         ) : (
