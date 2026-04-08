@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase/client";
 import { getFaixaComissao } from "@/lib/supabase/types";
+import type { Database } from "@/lib/supabase/types";
+
+type MetaRow      = Database["public"]["Tables"]["metas_mensais"]["Row"];
+type DiarioRow    = Database["public"]["Tables"]["relatorio_diario"]["Row"];
+type AcumuladoRow = Database["public"]["Views"]["resultado_acumulado"]["Row"];
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     // Busca acumulado (view)
-    const { data: acumulado, error: e1 } = await supabase
+    const { data: acumuladoRaw, error: e1 } = await supabase
       .from("resultado_acumulado")
       .select("*")
       .order("total_vendido", { ascending: false });
@@ -15,23 +20,27 @@ export async function GET() {
     if (e1) throw e1;
 
     // Busca metas (para prata/ouro/diamante)
-    const { data: metas, error: e2 } = await supabase
+    const { data: metasRaw, error: e2 } = await supabase
       .from("metas_mensais")
       .select("*");
 
     if (e2) throw e2;
 
     // Busca todos os registros diários para exibição de histórico
-    const { data: diario, error: e3 } = await supabase
+    const { data: diarioRaw, error: e3 } = await supabase
       .from("relatorio_diario")
       .select("*")
       .order("data", { ascending: true });
 
     if (e3) throw e3;
 
-    const metaMap = Object.fromEntries((metas ?? []).map((m) => [m.vendedor, m]));
+    const acumulado = (acumuladoRaw ?? []) as AcumuladoRow[];
+    const metas     = (metasRaw     ?? []) as MetaRow[];
+    const diario    = (diarioRaw    ?? []) as DiarioRow[];
 
-    const resultado = (acumulado ?? []).map((a) => {
+    const metaMap = Object.fromEntries(metas.map((m) => [m.vendedor, m]));
+
+    const resultado = acumulado.map((a) => {
       const m = metaMap[a.vendedor];
       const pct = Number(a.pct_meta) || 0;
       const faixa = getFaixaComissao(pct);
@@ -60,14 +69,14 @@ export async function GET() {
 
     // Agrupar diário por (vendedor, semana)
     const historico: Record<string, Record<string, Array<{ data: string; total: number }>>> = {};
-    for (const d of diario ?? []) {
+    for (const d of diario) {
       if (!historico[d.vendedor]) historico[d.vendedor] = {};
       if (!historico[d.vendedor][d.semana]) historico[d.vendedor][d.semana] = [];
       historico[d.vendedor][d.semana].push({ data: d.data, total: Number(d.total_vendas) });
     }
 
     // Últimas datas com dados
-    const datasComDados = [...new Set((diario ?? []).map((d) => d.data))].sort().slice(-30);
+    const datasComDados = [...new Set(diario.map((d) => d.data))].sort().slice(-30);
 
     return NextResponse.json({ resultado, historico, datasComDados });
   } catch (err: unknown) {

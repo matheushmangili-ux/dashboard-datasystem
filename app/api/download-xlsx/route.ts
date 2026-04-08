@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { supabase } from "@/lib/supabase/client";
 import { getFaixaComissao, SEMANAS } from "@/lib/supabase/types";
+import type { Database } from "@/lib/supabase/types";
+
+type MetaRow   = Database["public"]["Tables"]["metas_mensais"]["Row"];
+type DiarioRow = Database["public"]["Tables"]["relatorio_diario"]["Row"];
 
 export const dynamic = "force-dynamic";
 
@@ -20,17 +24,18 @@ function col(n: number): string {
 
 export async function GET() {
   try {
-    // Buscar todos os dados
-    const [{ data: metas }, { data: diario }] = await Promise.all([
-      supabase.from("metas_mensais").select("*"),
-      supabase.from("relatorio_diario").select("*").order("data", { ascending: true }),
-    ]);
+    // Buscar todos os dados com type assertions explícitas para evitar inferência 'never'
+    const metasRes  = await supabase.from("metas_mensais").select("*");
+    const diarioRes = await supabase.from("relatorio_diario").select("*").order("data", { ascending: true });
+
+    const metas  = (metasRes.data  ?? []) as MetaRow[];
+    const diario = (diarioRes.data ?? []) as DiarioRow[];
 
     const wb = new ExcelJS.Workbook();
     wb.creator = "Texas Center Dashboard";
     wb.created = new Date();
 
-    const metaMap = Object.fromEntries((metas ?? []).map((m) => [m.vendedor, m]));
+    const metaMap = Object.fromEntries(metas.map((m) => [m.vendedor, m]));
 
     const VENDEDORES_ORDER = [
       "João Victor", "Agnaldo", "Fernando Rezende", "Luiz Alberto",
@@ -131,7 +136,7 @@ export async function GET() {
         let totalSem = 0;
         for (let di = 0; di < dias.length; di++) {
           const dataStr = `2026-04-${String(dias[di]).padStart(2, "0")}`;
-          const reg = (diario ?? []).find((d) => d.vendedor === nome && d.data === dataStr);
+          const reg = diario.find((d) => d.vendedor === nome && d.data === dataStr);
           const val = reg ? Number(reg.total_vendas) : null;
           const cell = row.getCell(7 + di);
           cell.value = val ?? null;
