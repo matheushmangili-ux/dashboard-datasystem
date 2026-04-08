@@ -141,7 +141,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Upsert no Supabase (conflito em data + vendedor → atualiza)
-    const { error: dbError } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: dbError } = await (supabase as any)
       .from("relatorio_diario")
       .upsert(records, { onConflict: "data,vendedor" });
 
