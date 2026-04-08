@@ -8,9 +8,9 @@ import {
   MessageSquare, Briefcase, Package, TrendingUp, Calculator, Truck
 } from "lucide-react";
 
-export type SidebarView = 
-  | "dashboard" | "vendedores" | "metas" | "indicadores" | "fisica" 
-  | "ecommerce" | "cadastros" | "admin" | "melhor-envio"
+export type SidebarView =
+  | "dashboard" | "vendedores" | "metas" | "indicadores" | "fisica"
+  | "ecommerce" | "cadastros" | "admin" | "melhor-envio" | "resultados"
   | "ecommerce-resultados" | "ecommerce-trafego" | "ecommerce-seo"
   | "ecommerce-atendimento" | "ecommerce-clientes" | "ecommerce-produtos";
 
@@ -52,7 +52,8 @@ const MENU_SECTIONS: MenuSection[] = [
       { id: "dashboard", label: "Painel Geral", icon: LayoutDashboard, tooltip: "Onde o dinheiro galopa" },
       { id: "vendedores", label: "Vendedores", icon: Users, tooltip: "Os cowboys da operação" },
       { id: "metas", label: "Metas", icon: Target, tooltip: "Mire bem, parceiro!" },
-      { id: "indicadores", label: "Indicadores", icon: PieChart, tooltip: "Os números não mentem, cowboy" },
+      { id: "indicadores", label: "Indicadores",    icon: PieChart,    tooltip: "Os números não mentem, cowboy" },
+      { id: "resultados",  label: "Resultados",     icon: TrendingUp,  tooltip: "Vendas, metas e comissões", badge: "Novo", badgeType: "new" as const },
     ],
   },
   {
