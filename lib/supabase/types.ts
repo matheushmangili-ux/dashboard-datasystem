@@ -10,8 +10,22 @@ export type Database = {
           meta_ouro: number;
           meta_diamante: number;
         };
-        Insert: Omit<Database["public"]["Tables"]["metas_mensais"]["Row"], never>;
-        Update: Partial<Database["public"]["Tables"]["metas_mensais"]["Row"]>;
+        Insert: {
+          vendedor: string;
+          departamento: string;
+          meta_bronze: number;
+          meta_prata: number;
+          meta_ouro: number;
+          meta_diamante: number;
+        };
+        Update: {
+          vendedor?: string;
+          departamento?: string;
+          meta_bronze?: number;
+          meta_prata?: number;
+          meta_ouro?: number;
+          meta_diamante?: number;
+        };
       };
       relatorio_diario: {
         Row: {
@@ -31,8 +45,40 @@ export type Database = {
           total_prazo: number;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["relatorio_diario"]["Row"], "id" | "created_at">;
-        Update: Partial<Omit<Database["public"]["Tables"]["relatorio_diario"]["Row"], "id">>;
+        Insert: {
+          id?: string;
+          data: string;
+          semana: "S1" | "S2" | "S3" | "S4";
+          vendedor: string;
+          dias_trabalhados: number;
+          num_vendas?: number | null;
+          itens?: number | null;
+          pa?: number | null;
+          trocas?: number;
+          total_vendas: number;
+          ticket_medio?: number | null;
+          preco_medio?: number | null;
+          total_vista?: number;
+          total_prazo?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          data?: string;
+          semana?: "S1" | "S2" | "S3" | "S4";
+          vendedor?: string;
+          dias_trabalhados?: number;
+          num_vendas?: number | null;
+          itens?: number | null;
+          pa?: number | null;
+          trocas?: number;
+          total_vendas?: number;
+          ticket_medio?: number | null;
+          preco_medio?: number | null;
+          total_vista?: number;
+          total_prazo?: number;
+          created_at?: string;
+        };
       };
     };
     Views: {
